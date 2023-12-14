@@ -42,8 +42,8 @@ export const useStore = create<Store>((set) => ({
     init() {
       try {
         Promise.all([getEvents(), getNextSteps()]).then(([events, nextsteps]) => {
-          set({ 
-            events, 
+          set({
+            events,
             nextSteps: nextsteps.filter(ns => ns.type === NextstepsTypeOptions.nextstep),
             doubts: nextsteps.filter(ns => ns.type === NextstepsTypeOptions.doubt),
           })
@@ -66,38 +66,36 @@ export const useStore = create<Store>((set) => ({
       })
     },
     checkDoubt(id, checked) {
-      updateNextStep(id, checked ? new Date() : null).then((pbns) => {
-        set(prev => {
-          const doubt = prev.doubts.find(e => e.id === id && e.eventId === prev.selectedEventId)
-          if (!doubt) return prev
+      updateNextStep(id, checked ? new Date() : null)
+      set(prev => {
+        const doubt = prev.doubts.find(e => e.id === id && e.eventId === prev.selectedEventId)
+        if (!doubt) return prev
 
-          if (pbns?.doneAt)
-            doubt.doneAt = pbns.doneAt
-          else
-            doubt.doneAt = ''
+        if (checked)
+          doubt.doneAt = new Date().toISOString().split('T').join(' ')
+        else
+          doubt.doneAt = ''
 
-          return { doubts: [...prev.doubts] }
-        })
+        return { doubts: [...prev.doubts] }
       })
     },
     checkNextStep(id, checked) {
-      updateNextStep(id, checked ? new Date() : null).then((pbns) => {
-        set(prev => {
-          const ns = prev.nextSteps.find(e => e.id === id && e.eventId === prev.selectedEventId)
-          if (!ns) return prev
+      updateNextStep(id, checked ? new Date() : null)
+      set(prev => {
+        const ns = prev.nextSteps.find(e => e.id === id && e.eventId === prev.selectedEventId)
+        if (!ns) return prev
 
-          if (pbns?.doneAt)
-            ns.doneAt = pbns.doneAt
-          else
-            ns.doneAt = ''
+        if (checked)
+          ns.doneAt = new Date().toISOString().split('T').join(' ')
+        else
+          ns.doneAt = ''
 
-          let filteredEventIds = prev.filteredEventIds
-          if (prev.search === '$ns') {
-            filteredEventIds = [...(new Set(prev.nextSteps.filter(ns => !ns.doneAt).map(ns => ns.eventId)))]
-          }
+        let filteredEventIds = prev.filteredEventIds
+        if (prev.search === '$ns') {
+          filteredEventIds = [...(new Set(prev.nextSteps.filter(ns => !ns.doneAt).map(ns => ns.eventId)))]
+        }
 
-          return { nextSteps: [...prev.nextSteps], filteredEventIds }
-        })
+        return { nextSteps: [...prev.nextSteps], filteredEventIds }
       })
     },
     addNextStep(eventId, title) {
