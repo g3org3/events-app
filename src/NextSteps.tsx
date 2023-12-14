@@ -1,11 +1,12 @@
 import { Flex, Checkbox, Spacer, Button } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import Empty from './Empty'
 import CreateNextStepModal from './CreateNextStepModal'
 import { eventRoute } from './Router'
-import { getNextSteps } from './pb'
+import { getNextSteps, updateNextStep } from './pb'
+import { queryClient } from './queryClient'
 
 
 export default function NextSteps() {
@@ -13,6 +14,12 @@ export default function NextSteps() {
   const { data: nextSteps = [], isLoading } = useQuery({
     queryKey: ['get-next-steps', `event-id-${selectedEventId}`],
     queryFn: () => getNextSteps(selectedEventId, 'nextstep')
+  })
+  const { mutate, isPending } = useMutation({
+    mutationFn: (params: { nsId: string, checked: boolean }) => updateNextStep(params.nsId, params.checked),
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['get-next-steps', `event-id-${selectedEventId}`] })
+    }
   })
 
   return <Flex flexDir="column" flex="1" gap="2" p="4">
@@ -22,10 +29,12 @@ export default function NextSteps() {
     </Flex>
     <Flex flex="1" gap="2" overflow="auto" flexDir="column">
       {nextSteps.length > 0 && <CreateNextStepModal />}
-      {nextSteps.map(e => (
-        <Flex key={e.id} alignItems="center" gap="1">
+      {nextSteps.map(ns => (
+        <Flex key={ns.id} alignItems="center" gap="1">
           <Checkbox
-            isChecked={!!e.doneAt}
+            disabled={isPending}
+            onChange={(e) => mutate({ nsId: ns.id, checked: e.target.checked })}
+            isChecked={!!ns.doneAt}
             width="100%"
             bg="white"
             boxShadow="sm"
@@ -34,9 +43,9 @@ export default function NextSteps() {
             flexDirection="row"
           >
             <Flex alignItems="center">
-              <Flex fontSize="x-large">{e.title}</Flex>
+              <Flex fontSize="x-large">{ns.title}</Flex>
               <Spacer />
-              {e.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(e.doneAt).toRelative()}</Flex>}
+              {ns.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(ns.doneAt).toRelative()}</Flex>}
             </Flex>
           </Checkbox>
         </Flex>

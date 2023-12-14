@@ -20,7 +20,8 @@ export const createNextStep = async (ns: NextstepsRecord, type: 'nextstep' | 'do
   return res
 }
 
-export const updateNextStep = async (id: string, doneAt: Date | null) => {
+export const updateNextStep = async (id: string, checked: boolean) => {
+  let doneAt = checked ? new Date() : ''
   if (!pb.authStore.model) return
   const res = await pb.collection(Collections.Nextsteps)
     .update<NextstepsResponse>(id, { doneAt })
