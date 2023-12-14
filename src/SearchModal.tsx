@@ -9,25 +9,22 @@ import {
   Input,
   ModalFooter,
   useDisclosure,
+  Spacer,
 } from '@chakra-ui/react'
 import { useState } from "react"
-import { useStore } from "./store"
 
 
 export default function SearchModal() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const query = useStore(store => store.search)
-  const [searchText, setSearch] = useState(query || '')
-  const search = useStore(store => store.actions.search)
+  const [searchText, setSearch] = useState('')
 
+  const query = searchText
   const onClear = () => {
-    search('')
     setSearch('')
     onClose()
 
   }
   const onCreate = () => {
-    search(searchText)
     setSearch('')
     onClose()
   }
@@ -49,6 +46,7 @@ export default function SearchModal() {
             <Button colorScheme="red" variant="outline" mr={3} onClick={onClear}>
               clear
             </Button>
+            <Spacer />
             <Button colorScheme="purple" mr={3} onClick={onCreate}>
               search
             </Button>

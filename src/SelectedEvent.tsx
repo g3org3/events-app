@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { eventRoute } from './Router'
-import { getEvent, updateEvent } from './pb'
+import { getEvent, getNextSteps, updateEvent } from './pb'
 import Empty from './Empty'
 import { queryClient } from './queryClient'
 
@@ -15,6 +15,16 @@ export default function SelectedEvent() {
     queryKey: ['get-event', selectedEventId],
     queryFn: () => getEvent(selectedEventId),
   })
+  // for pre-fetching purposes
+  useQuery({
+    queryKey: ['get-next-steps', `event-id-${selectedEventId}`],
+    queryFn: () => getNextSteps(selectedEventId, 'nextstep')
+  })
+  useQuery({
+    queryKey: ['get-doubts', `event-id-${selectedEventId}`],
+    queryFn: () => getNextSteps(selectedEventId, 'doubt')
+  })
+
   const { mutate, isPending } = useMutation({
     mutationFn: (notes: string) => updateEvent(selectedEventId, notes),
     onSuccess() {

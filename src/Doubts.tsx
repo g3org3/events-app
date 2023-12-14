@@ -22,7 +22,7 @@ export default function Doubts() {
   })
 
   return <Flex flexDir="column" flex="1" gap="2" p="4">
-    <Flex borderBottom="1px solid" borderColor="gray.400" fontSize="x-large">
+    <Flex borderBottom="1px solid" borderColor="gray.400" py="2" fontSize="x-large">
       <Flex>Doubts</Flex>
       <Spacer />
     </Flex>
