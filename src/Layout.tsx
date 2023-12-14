@@ -4,7 +4,7 @@ import {
   Spacer,
 } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
-import SearchModal from './SearchModal'
+// import SearchModal from './SearchModal'
 import { pb } from './pb'
 
 export default function Layout(props: { children: React.ReactNode }) {
@@ -20,7 +20,7 @@ export default function Layout(props: { children: React.ReactNode }) {
           <Link to="/">Events</Link>
         </Flex>
         <Spacer />
-        <SearchModal />
+        {/* <SearchModal /> */}
         <Button onClick={onLogout}>Logout</Button>
       </Flex>
       <Flex flex="1" flexDir="column" overflow="auto">
