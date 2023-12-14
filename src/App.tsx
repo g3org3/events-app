@@ -11,15 +11,45 @@ import {
   ModalHeader,
   ModalOverlay,
   Spacer,
-  useDisclosure,
   Textarea,
+  useDisclosure,
 } from '@chakra-ui/react'
+import type { ClientResponseError } from 'pocketbase'
 import { DateTime } from 'luxon'
 import { SmallAddIcon } from '@chakra-ui/icons'
 import { useEffect, useState } from 'react'
 import { useStore } from './store'
+import { pb } from './pb'
+
+function Login() {
+  const onLogin = async () => {
+    let res = null
+    try {
+      res = await pb.collection('users').authWithOAuth2({ provider: 'google' })
+    } catch (e) {
+      const err = e as ClientResponseError
+      alert(err.message)
+    }
+    if (res?.meta?.avatarUrl) {
+      const { avatarUrl } = res.meta
+      await pb.collection('users').update(res.record.id, { avatarUrl })
+    }
+    document.location = '/'
+  }
+
+  return (
+    <Flex h="100dvh" alignItems="center" justifyContent="center" bg="gray.100">
+      <Flex p="6" w="300px" bg="gray.50" boxShadow="md" border="1px solid" borderColor="gray.100" flexDir="column" gap="4">
+        <Flex fontSize="xx-large">Login</Flex>
+        <Flex>login to use events</Flex>
+        <Button onClick={onLogin}>login with google</Button>
+      </Flex>
+    </Flex>
+  )
+}
 
 function App() {
+
   const events = useStore(store => store.events)
   const filteredEventIds = useStore(store => store.filteredEventIds)
   const selectedEventId = useStore(store => store.selectedEventId)
@@ -27,6 +57,11 @@ function App() {
   const init = useStore(store => store.actions.init)
   const event = events.find(e => e.id === selectedEventId)
   const [tab, setTab] = useState<'all' | 'doubts' | 'nextSteps'>('all')
+
+  if (!pb.authStore.isValid) {
+    return <Login />
+  }
+
   const onGoHome = () => {
     setEventId(null)
     setTab('all')
@@ -108,7 +143,7 @@ function Doubts() {
             <Flex alignItems="center">
               <Flex fontSize="x-large">{e.title}</Flex>
               <Spacer />
-              {e.doneAt && <Flex fontSize="sm">{DateTime.fromMillis(e.doneAt).toRelative()}</Flex>}
+              {e.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(e.doneAt).toRelative()}</Flex>}
             </Flex>
           </Checkbox>
         </Flex>
@@ -194,7 +229,7 @@ function NextSteps() {
             <Flex alignItems="center">
               <Flex fontSize="x-large">{e.title}</Flex>
               <Spacer />
-              {e.doneAt && <Flex fontSize="sm">{DateTime.fromMillis(e.doneAt).toRelative()}</Flex>}
+              {e.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(e.doneAt).toRelative()}</Flex>}
             </Flex>
           </Checkbox>
         </Flex>
@@ -218,7 +253,8 @@ function SelectedEvent() {
   }
 
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    addNotes(e.target.value)
+    if (!selectedEventId) return 
+    addNotes(selectedEventId, e.target.value)
   }
 
   return <Flex flexDir="column" flex="1" gap="3">
@@ -281,7 +317,8 @@ function EventList() {
           >
             <Flex fontSize="x-large">{e.title}</Flex>
             <Spacer />
-            <Flex>{DateTime.fromMillis(e.createdAt).toRelative()}</Flex>
+            {/* @ts-ignore */}
+            <Flex>{DateTime.fromSQL(e.createdAt).toRelative()}</Flex>
             <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full">{e.pending.toString().padStart(2, '0')}</Flex>
           </Button>
         </Flex>
@@ -293,10 +330,12 @@ function EventList() {
 function CreateDoubtModal() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [title, setTitle] = useState('')
+  const selectedEventId = useStore(store => store.selectedEventId)
   const addDoubt = useStore(store => store.actions.addDoubt)
 
   const onCreate = () => {
-    addDoubt(title)
+    if (!selectedEventId) return
+    addDoubt(selectedEventId, title)
     setTitle('')
     onClose()
   }
@@ -326,10 +365,12 @@ function CreateDoubtModal() {
 function CreateNextStepModal() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [title, setTitle] = useState('')
+  const selectedEventId = useStore(store => store.selectedEventId)
   const addNextStep = useStore(store => store.actions.addNextStep)
 
   const onCreate = () => {
-    addNextStep(title)
+    if (!selectedEventId) return
+    addNextStep(selectedEventId, title)
     setTitle('')
     onClose()
   }

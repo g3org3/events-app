@@ -1,43 +1,22 @@
 import { create } from 'zustand'
-import { v4 as uuid } from 'uuid'
+import { createEvent, createNextStep, getEvents, getNextSteps, updateEvent, updateNextStep } from './pb'
+import { EventsResponse, NextstepsResponse, NextstepsTypeOptions } from './pocket-types'
 
-export interface EEvent {
-  id: string
-  title: string
-  notes?: string | null
-  createdAt: number
-}
-
-export interface NextStep {
-  id: string
-  eventId: string
-  title: string
-  createdAt: number
-  doneAt?: number | null
-}
-
-export interface Doubt {
-  id: string
-  eventId: string
-  title: string
-  createdAt: number
-  doneAt?: number | null
-}
 
 interface Store {
-  events: EEvent[]
-  nextSteps: NextStep[]
-  doubts: Doubt[]
+  events: EventsResponse[]
+  nextSteps: NextstepsResponse[]
+  doubts: NextstepsResponse[]
   filteredEventIds: string[] | null
   selectedEventId: string | null
   search: string | null
   actions: {
     addEvent: (title: string) => void
     setEventId: (id: string | null) => void
-    addNextStep: (title: string) => void
+    addNextStep: (eventId: string, title: string) => void
     search: (search: string) => void
-    addDoubt: (title: string) => void
-    addNotes: (notes: string) => void
+    addDoubt: (eventId: string, title: string) => void
+    addNotes: (id: string, notes: string) => void
     checkNextStep: (id: string, checked?: boolean) => void
     checkDoubt: (id: string, checked?: boolean) => void
     init: () => void
@@ -62,118 +41,102 @@ export const useStore = create<Store>((set) => ({
     },
     init() {
       try {
-        const state = JSON.parse(localStorage.getItem('store') || '')
-        if (!state) return
-        set({
-          events: state.events,
-          nextSteps: state.nextSteps,
-          doubts: state.doubts,
-          search: state.search,
-          filteredEventIds: state.filteredEventIds,
+        Promise.all([getEvents(), getNextSteps()]).then(([events, nextsteps]) => {
+          set({ 
+            events, 
+            nextSteps: nextsteps.filter(ns => ns.type === NextstepsTypeOptions.nextstep),
+            doubts: nextsteps.filter(ns => ns.type === NextstepsTypeOptions.doubt),
+          })
         })
-      } catch {
+      } catch (err) {
+        alert(err)
       }
     },
     setEventId(id) {
       set({ selectedEventId: id })
     },
-    addDoubt(title) {
-      set(prev => {
-        const doubts = [{
-          title,
-          id: uuid(),
-          createdAt: Date.now(),
-          eventId: prev.selectedEventId!,
-        }].concat(prev.doubts)
+    addDoubt(eventId, title) {
+      createNextStep({ title, eventId }, 'doubt').then(pbns => {
+        if (!pbns) return
+        set(prev => {
+          const doubts = [pbns].concat(prev.doubts)
 
-        const { actions, ...rest } = prev
-        localStorage.setItem('store', JSON.stringify({ ...rest, doubts }))
-
-        return { doubts }
+          return { doubts }
+        })
       })
     },
     checkDoubt(id, checked) {
-      set(prev => {
-        const doubt = prev.doubts.find(e => e.id === id && e.eventId === prev.selectedEventId)
-        if (!doubt) return prev
+      updateNextStep(id, checked ? new Date() : null).then((pbns) => {
+        set(prev => {
+          const doubt = prev.doubts.find(e => e.id === id && e.eventId === prev.selectedEventId)
+          if (!doubt) return prev
 
-        if (checked)
-          doubt.doneAt = Date.now()
-        else
-          doubt.doneAt = null
+          if (pbns?.doneAt)
+            doubt.doneAt = pbns.doneAt
+          else
+            doubt.doneAt = ''
 
-        const { actions, ...rest } = prev
-        localStorage.setItem('store', JSON.stringify({ ...rest }))
-
-        return { doubts: [...prev.doubts] }
+          return { doubts: [...prev.doubts] }
+        })
       })
     },
     checkNextStep(id, checked) {
-      set(prev => {
-        const ns = prev.nextSteps.find(e => e.id === id && e.eventId === prev.selectedEventId)
-        if (!ns) return prev
+      updateNextStep(id, checked ? new Date() : null).then((pbns) => {
+        set(prev => {
+          const ns = prev.nextSteps.find(e => e.id === id && e.eventId === prev.selectedEventId)
+          if (!ns) return prev
 
-        if (checked)
-          ns.doneAt = Date.now()
-        else
-          ns.doneAt = null
+          if (pbns?.doneAt)
+            ns.doneAt = pbns.doneAt
+          else
+            ns.doneAt = ''
 
-        let filteredEventIds = prev.filteredEventIds
-        if (prev.search === '$ns') {
-          filteredEventIds = [...(new Set(prev.nextSteps.filter(ns => !ns.doneAt).map(ns => ns.eventId)))]
-        }
-        const { actions, ...rest } = prev
-        localStorage.setItem('store', JSON.stringify({ ...rest }))
+          let filteredEventIds = prev.filteredEventIds
+          if (prev.search === '$ns') {
+            filteredEventIds = [...(new Set(prev.nextSteps.filter(ns => !ns.doneAt).map(ns => ns.eventId)))]
+          }
 
-        return { nextSteps: [...prev.nextSteps], filteredEventIds }
+          return { nextSteps: [...prev.nextSteps], filteredEventIds }
+        })
       })
     },
-    addNextStep(title) {
-      set(prev => {
-        const nextSteps = [{
-          title,
-          id: uuid(),
-          createdAt: Date.now(),
-          eventId: prev.selectedEventId!,
-        }].concat(prev.nextSteps)
+    addNextStep(eventId, title) {
+      createNextStep({ title, eventId }, 'nextstep').then(nextstep => {
+        if (!nextstep) return
+        set(prev => {
+          const nextSteps = [nextstep].concat(prev.nextSteps)
 
-        let filteredEventIds = prev.filteredEventIds
-        if (prev.search === '$ns') {
-          filteredEventIds = [...(new Set(prev.nextSteps.filter(ns => !ns.doneAt).map(ns => ns.eventId)))]
-        }
+          let filteredEventIds = prev.filteredEventIds
+          if (prev.search === '$ns') {
+            filteredEventIds = [...(new Set(prev.nextSteps.filter(ns => !ns.doneAt).map(ns => ns.eventId)))]
+          }
 
-        const { actions, ...rest } = prev
-        localStorage.setItem('store', JSON.stringify({ ...rest, nextSteps }))
-
-        return { nextSteps, filteredEventIds }
+          return { nextSteps, filteredEventIds }
+        })
       })
     },
     addEvent(title) {
-      set(prev => {
-        const events = [{
-          title,
-          id: uuid(),
-          createdAt: Date.now()
-        }].concat(prev.events)
+      createEvent({ title }).then(event => {
+        if (!event) return
+        set(prev => {
+          const events = [event].concat(prev.events)
 
-        const { actions, ...rest } = prev
-        localStorage.setItem('store', JSON.stringify({ ...rest, events }))
-
-        return { events }
+          return { events }
+        })
       })
+
     },
-    addNotes(notes) {
-      set(prev => {
-        const event = prev.events.find(e => e.id === prev.selectedEventId)
-        if (!event) return prev
+    addNotes(id, notes) {
+      updateEvent(id, notes).then(() => {
+        set(prev => {
+          const event = prev.events.find(e => e.id === prev.selectedEventId)
+          if (!event) return prev
 
-        event.notes = notes
-
-        const { actions, ...rest } = prev
-        localStorage.setItem('store', JSON.stringify({ ...rest }))
+          event.notes = event.notes
 
 
-        return { events: [...prev.events] }
+          return { events: [...prev.events] }
+        })
       })
     },
     search(search) {
