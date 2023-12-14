@@ -1,4 +1,4 @@
-import { 
+import {
   Button,
   Modal,
   ModalOverlay,
@@ -10,35 +10,48 @@ import {
   ModalFooter,
   useDisclosure,
 } from '@chakra-ui/react'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from "react"
-import { useStore } from "./store"
+import { createNextStep } from './pb'
+import { queryClient } from './queryClient'
+import { eventRoute } from './Router'
 
 export default function CreateDoubtModal() {
-  const { isOpen, onOpen, onClose } = useDisclosure ()
+  const { id: selectedEventId } = eventRoute.useParams()
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [title, setTitle] = useState('')
-  const selectedEventId = useStore(store => store.selectedEventId)
-  const addDoubt = useStore(store => store.actions.addDoubt)
 
-  const onCreate = () => {
-    if (!selectedEventId) return
-    addDoubt(selectedEventId, title)
-    setTitle('')
-    onClose()
-  }
+  const { isPending, mutate } = useMutation({
+    mutationFn: () => createNextStep({ title, eventId: selectedEventId }, 'doubt'),
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['get-doubts', `event-id-${selectedEventId}`] })
+      setTitle('')
+      onClose()
+    }
+  })
 
   return (
     <>
-      <Button colorScheme="purple" variant="outline" size="md" onClick={onOpen}>add doubt</Button>
+      <Button colorScheme="purple" size="md" variant="outline" onClick={onOpen}>
+        Add a doubt
+      </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent m={3}>
           <ModalHeader>Add a new doubt</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Input autoFocus autoComplete="off" value={title} onChange={(e) => setTitle(e.target.value)} placeholder='I am not sure...' />
+            <Input
+              disabled={isPending}
+              autoFocus
+              autoComplete="off"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="When, what, why, how..."
+            />
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="purple" mr={3} onClick={onCreate}>
+            <Button isLoading={isPending} colorScheme="purple" mr={3} onClick={() => mutate()}>
               add
             </Button>
           </ModalFooter>

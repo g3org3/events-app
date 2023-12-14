@@ -1,34 +1,29 @@
 import { Flex, Button, Spacer, Checkbox } from '@chakra-ui/react'
+import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
-import { useState } from "react"
-import { useStore } from "./store"
 import Empty from './Empty'
 import CreateDoubtModal from './CreateDoubtModal'
+import { getNextSteps } from './pb'
+import { eventRoute } from './Router'
 
 export default function Doubts() {
-  const [hideCompleted, setHideCompleted] = useState(false)
-  const doubts = useStore(store => store.doubts)
-  const selectedEventId = useStore(store => store.selectedEventId)
-  const checkDoubt = useStore(store => store.actions.checkDoubt)
-  let filteredDoubts = doubts
-  if (selectedEventId) {
-    filteredDoubts = filteredDoubts.filter(ns => ns.eventId === selectedEventId)
-  }
-  if (hideCompleted) {
-    filteredDoubts = filteredDoubts.filter(ns => !ns.doneAt)
-  }
+  const { id: selectedEventId } = eventRoute.useParams()
+  const { data: doubts = [], isLoading } = useQuery({
+    queryKey: ['get-doubts', `event-id-${selectedEventId}`],
+    queryFn: () => getNextSteps(selectedEventId, 'doubt')
+  })
 
-  return <Flex flexDir="column" flex="1" gap="2">
+  return <Flex flexDir="column" flex="1" gap="2" p="4">
     <Flex borderBottom="1px solid" borderColor="gray.400" fontSize="x-large">
       <Flex>Doubts</Flex>
       <Spacer />
-      <Button size="sm" onClick={() => setHideCompleted(!hideCompleted)}>{hideCompleted ? 'show' : 'hide'}</Button>
     </Flex>
     <Flex flex="1" gap="2" overflow="auto" flexDir="column">
-      {filteredDoubts.map(e => (
+      {doubts.length > 0 && <CreateDoubtModal />}
+      {doubts.map(e => (
         <Flex key={e.id} alignItems="center" gap="1">
           <Checkbox
-            onChange={(ev) => checkDoubt(e.id, ev.target.checked)}
             isChecked={!!e.doneAt}
             width="100%"
             bg="white"
@@ -45,7 +40,18 @@ export default function Doubts() {
           </Checkbox>
         </Flex>
       ))}
-      {filteredDoubts.length === 0 && <Empty message="You don't have any doubts." action={selectedEventId && <CreateDoubtModal />} />}
+      {doubts.length === 0 && <Empty isLoading={isLoading} message="You don't have any doubts." action={selectedEventId && <CreateDoubtModal />} />}
+    </Flex>
+    <Flex bg="white" justifyContent="space-around" p="2" border="1px solid" borderColor="gray.300">
+      <Link to="/event/$id/doubts" params={{ id: selectedEventId }}>
+        <Button variant="ghost">Doubts</Button>
+      </Link>
+      <Link to="/event/$id" params={{ id: selectedEventId }}>
+        <Button variant="ghost">Events</Button>
+      </Link>
+      <Link to="/event/$id/next-steps" params={{ id: selectedEventId }}>
+        <Button variant="ghost">Next Steps</Button>
+      </Link>
     </Flex>
   </Flex>
 }

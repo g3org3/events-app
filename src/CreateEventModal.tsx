@@ -10,20 +10,24 @@ import {
   ModalFooter,
   useDisclosure,
 } from '@chakra-ui/react'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from "react"
-import { useStore } from "./store"
+import { createEvent } from './pb'
+import { queryClient } from './queryClient'
 
 
 export default function CreateEventModal() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [title, setTitle] = useState('')
-  const addEvent = useStore(store => store.actions.addEvent)
 
-  const onCreate = () => {
-    addEvent(title)
-    setTitle('')
-    onClose()
-  }
+  const { isPending, mutate } = useMutation({
+    mutationFn: () => createEvent({ title }),
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['events'] })
+      setTitle('')
+      onClose()
+    }
+  })
 
   return (
     <>
@@ -34,10 +38,17 @@ export default function CreateEventModal() {
           <ModalHeader>Create new event</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Input autoFocus autoComplete="off" value={title} onChange={(e) => setTitle(e.target.value)} placeholder='event name' />
+            <Input
+              disabled={isPending}
+              autoFocus
+              autoComplete="off"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Event name..."
+            />
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="purple" mr={3} onClick={onCreate}>
+            <Button isLoading={isPending} colorScheme="purple" mr={3} onClick={() => mutate()}>
               create
             </Button>
           </ModalFooter>

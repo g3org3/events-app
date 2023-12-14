@@ -1,76 +1,30 @@
 import { Flex, Checkbox, Spacer, Button } from '@chakra-ui/react'
+import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
-import { useState } from 'react'
-import { useStore } from './store'
 import Empty from './Empty'
 import CreateNextStepModal from './CreateNextStepModal'
+import { eventRoute } from './Router'
+import { getNextSteps } from './pb'
 
 
 export default function NextSteps() {
-  const [hideCompleted, setHideCompleted] = useState(false)
-  const nextSteps = useStore(store => store.nextSteps)
-  const events = useStore(store => store.events)
-  const selectedEventId = useStore(store => store.selectedEventId)
-  const checkNextStep = useStore(store => store.actions.checkNextStep)
-  let filteredNextSteps = nextSteps
-  if (selectedEventId) {
-    filteredNextSteps = filteredNextSteps.filter(ns => ns.eventId === selectedEventId)
-  }
-  if (hideCompleted) {
-    filteredNextSteps = filteredNextSteps.filter(ns => !ns.doneAt)
-  }
-
-  const nsEvents = events.map(e => {
-    const nextSteps = filteredNextSteps.filter(ns => ns.eventId === e.id)
-
-    return {
-      ...e,
-      pending: nextSteps.filter(ns => !ns.doneAt).length,
-      nextSteps,
-    }
+  const { id: selectedEventId } = eventRoute.useParams()
+  const { data: nextSteps = [], isLoading } = useQuery({
+    queryKey: ['get-next-steps', `event-id-${selectedEventId}`],
+    queryFn: () => getNextSteps(selectedEventId, 'nextstep')
   })
 
-  if (!selectedEventId) {
-    return <Flex flexDir="column" flex="1" gap="2">
-      <Flex borderBottom="1px solid" borderColor="gray.400" fontSize="x-large">
-        <Flex>Next Steps</Flex>
-      </Flex>
-      <Flex flex="1" gap="2" overflow="auto" flexDir="column">
-        {nsEvents.map(e => (
-          <Flex key={e.id} alignItems="center" gap="1">
-            <Checkbox
-              isChecked={!e.pending}
-              width="100%"
-              bg="white"
-              boxShadow="sm"
-              p="2"
-              display="flex"
-              flexDirection="row"
-            >
-              <Flex alignItems="center">
-                <Flex fontSize="x-large">{e.title}</Flex>
-                <Spacer />
-                <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full">{e.pending.toString().padStart(2, '0')}</Flex>
-              </Flex>
-            </Checkbox>
-          </Flex>
-        ))}
-        {filteredNextSteps.length === 0 && <Empty message="You don't have any next steps." action={selectedEventId && <CreateNextStepModal />} />}
-      </Flex>
-    </Flex>
-  }
-
-  return <Flex flexDir="column" flex="1" gap="2">
+  return <Flex flexDir="column" flex="1" gap="2" p="4">
     <Flex borderBottom="1px solid" borderColor="gray.400" fontSize="x-large">
       <Flex>Next Steps</Flex>
       <Spacer />
-      <Button size="sm" onClick={() => setHideCompleted(!hideCompleted)}>{hideCompleted ? 'show' : 'hide'}</Button>
     </Flex>
     <Flex flex="1" gap="2" overflow="auto" flexDir="column">
-      {filteredNextSteps.map(e => (
+      {nextSteps.length > 0 && <CreateNextStepModal />}
+      {nextSteps.map(e => (
         <Flex key={e.id} alignItems="center" gap="1">
           <Checkbox
-            onChange={(ev) => checkNextStep(e.id, ev.target.checked)}
             isChecked={!!e.doneAt}
             width="100%"
             bg="white"
@@ -87,7 +41,18 @@ export default function NextSteps() {
           </Checkbox>
         </Flex>
       ))}
-      {filteredNextSteps.length === 0 && <Empty message="You don't have any next steps." action={selectedEventId && <CreateNextStepModal />} />}
+      {nextSteps.length === 0 && <Empty isLoading={isLoading} message="You don't have any next steps." action={selectedEventId && <CreateNextStepModal />} />}
+    </Flex>
+    <Flex bg="white" justifyContent="space-around" p="2" border="1px solid" borderColor="gray.300">
+      <Link to="/event/$id/doubts" params={{ id: selectedEventId }}>
+        <Button variant="ghost">Doubts</Button>
+      </Link>
+      <Link to="/event/$id" params={{ id: selectedEventId }}>
+        <Button variant="ghost">Events</Button>
+      </Link>
+      <Link to="/event/$id/next-steps" params={{ id: selectedEventId }}>
+        <Button variant="ghost">Next Steps</Button>
+      </Link>
     </Flex>
   </Flex>
 }

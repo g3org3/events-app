@@ -46,10 +46,23 @@ export const getEvents = async () => {
   return events
 }
 
-export const getNextSteps = async () => {
+export const getEvent = async (id: string) => {
+  if (!pb.authStore.model) return undefined
+  const event = await pb.collection(Collections.Events)
+    .getOne<EventsResponse>(id)
+
+  return event
+}
+
+export const getNextSteps = async (eventId: string, type: 'doubt' | 'nextstep') => {
   if (!pb.authStore.model) return []
+  let filter = `authorId='${pb.authStore.model.id}' && type='${type}'`
+  if (eventId) {
+    filter += ` && eventId='${eventId}'`
+  }
+
   const events = await pb.collection(Collections.Nextsteps)
-    .getFullList<NextstepsResponse>({ filter: `authorId = '${pb.authStore.model.id}'` })
+    .getFullList<NextstepsResponse>({ filter })
 
   return events
 }

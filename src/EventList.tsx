@@ -1,69 +1,87 @@
 import { Flex, Button, Spacer } from '@chakra-ui/react'
 import { SmallAddIcon } from '@chakra-ui/icons'
+import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 
-import { useStore } from "./store"
 import Empty from './Empty'
 import CreateEventModal from './CreateEventModal'
+import { EventsResponse, NextstepsResponse } from './pocket-types'
+import { getEvents } from './pb'
 
 export default function EventList() {
-  const events = useStore(store => store.events)
-  const nextSteps = useStore(store => store.nextSteps)
-  const setEventId = useStore(store => store.actions.setEventId)
-  const filteredEventIds = useStore(store => store.filteredEventIds)
-  let filteredEvents = events
-  if (filteredEventIds) {
-    filteredEvents = filteredEvents.filter(e => filteredEventIds.includes(e.id))
-  }
-  if (filteredEvents.length === 0) return <Empty message="You don't have any events." action={filteredEventIds === null && <CreateEventModal />} />
-
-  const nsEvents = filteredEvents.map(e => {
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => getEvents()
+  })
+  const nextSteps: NextstepsResponse[] = []
+  const nsEvents = events.map(e => {
     const _next = nextSteps.filter(ns => ns.eventId === e.id)
 
     return {
       ...e,
       pending: _next.filter(ns => !ns.doneAt).length,
-      nextSteps,
     }
   })
 
+  if (events.length === 0) {
+    return <Empty
+      isLoading={isLoading}
+      message="You don't have any events."
+      action={<CreateEventModal />}
+    />
+  }
+
   return (
-    <Flex flex="1" gap="2" overflow="auto" flexDir="column">
+    <Flex flex="1" gap="2" p="4" overflow="auto" flexDir="column">
+      <CreateEventModal />
       {nsEvents.map(e => (
-        <Flex key={e.id} alignItems="center" gap="1" p="1">
-          <Flex position="relative">
-            <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
-            <Flex
-              position="absolute"
-              bottom="-25px"
-              left="7px"
-              height="23px"
-              borderLeft="1px dashed"
-              borderColor="gray.400"
-              width="1px"
-            />
-          </Flex>
-          <Button
-            onClick={() => setEventId(e.id)}
-            boxShadow="sm"
-            flex="1"
-            p="3"
-            border="1px solid"
-            borderColor="gray.200"
-            bg="white"
-            rounded="sm"
-            alignItems="center"
-            display="flex"
-            gap="3"
-          >
-            <Flex fontSize="x-large">{e.title}</Flex>
-            <Spacer />
-            {/* @ts-ignore */}
-            <Flex>{DateTime.fromSQL(e.createdAt).toRelative()}</Flex>
-            <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full">{e.pending.toString().padStart(2, '0')}</Flex>
-          </Button>
-        </Flex>
+        <EventComponent key={e.id} event={e} />
       ))}
+    </Flex>
+  )
+}
+
+interface EventWithPending extends EventsResponse {
+  pending: number
+}
+
+function EventComponent(props: { event: EventWithPending }) {
+  return (
+    <Flex key={props.event.id} alignItems="center" gap="1" p="1">
+      <Flex position="relative">
+        <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
+        <Flex
+          borderColor="gray.400"
+          borderLeft="1px dashed"
+          bottom="-25px"
+          height="23px"
+          left="7px"
+          position="absolute"
+          width="1px"
+        />
+      </Flex>
+      <Link style={{ display: 'flex', flexDirection: 'column', flex: 1 }} to="/event/$id" params={{ id: props.event.id }}>
+        <Button
+          alignItems="center"
+          bg="white"
+          border="1px solid"
+          borderColor="gray.200"
+          boxShadow="sm"
+          display="flex"
+          flex="1"
+          gap="3"
+          p="3"
+          rounded="sm"
+        >
+          <Flex fontSize="x-large">{props.event.title}</Flex>
+          <Spacer />
+          <Flex>{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
+          <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full">
+            {props.event.pending.toString().padStart(2, '0')}
+          </Flex>
+        </Button>
+      </Link>
     </Flex>
   )
 }
