@@ -135,6 +135,8 @@ export const useStore = create<Store>((set) => ({
 
           return { events: [...prev.events] }
         })
+      }).catch((err) => {
+        alert(err)
       })
     },
     search(search) {

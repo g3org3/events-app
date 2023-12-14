@@ -30,6 +30,8 @@ export const updateNextStep = async (id: string, doneAt: Date | null) => {
 
 export const updateEvent = async (id: string, notes: string) => {
   if (!pb.authStore.model) return
+
+  console.log('->', notes)
   const res = await pb.collection(Collections.Events)
     .update<EventsResponse>(id, { notes })
 
@@ -39,7 +41,7 @@ export const updateEvent = async (id: string, notes: string) => {
 export const getEvents = async () => {
   if (!pb.authStore.model) return []
   const events = await pb.collection(Collections.Events)
-    .getFullList<EventsResponse>({ filter: `authorId = '${pb.authStore.model.id}'` })
+    .getFullList<EventsResponse>({ filter: `authorId = '${pb.authStore.model.id}'`, sort: '-created' })
 
   return events
 }
