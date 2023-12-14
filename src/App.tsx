@@ -442,6 +442,12 @@ function SearchModal() {
   const [searchText, setSearch] = useState(query || '')
   const search = useStore(store => store.actions.search)
 
+  const onClear = () => {
+    search('')
+    setSearch('')
+    onClose()
+
+  }
   const onCreate = () => {
     search(searchText)
     setSearch('')
@@ -451,7 +457,7 @@ function SearchModal() {
   return (
     <>
       <Button isTruncated colorScheme="purple" variant={!query ? "outline" : "solid"} size="md" onClick={onOpen}>
-        {query ? `search: "${query.substr(0, 3)}..."` : "search"}
+        {query ? `search: "${query.substring(0, 3)}..."` : "search"}
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -462,6 +468,9 @@ function SearchModal() {
             <Input autoFocus autoComplete="off" value={searchText} onChange={(e) => setSearch(e.target.value)} placeholder="search..." />
           </ModalBody>
           <ModalFooter>
+            <Button colorScheme="red" variant="outline" mr={3} onClick={onClear}>
+              clear
+            </Button>
             <Button colorScheme="purple" mr={3} onClick={onCreate}>
               search
             </Button>
