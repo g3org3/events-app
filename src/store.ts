@@ -49,7 +49,7 @@ export const useStore = create<Store>((set) => ({
   events: [],
   doubts: [],
   nextSteps: [],
-  filteredEventIds: [],
+  filteredEventIds: null,
   selectedEventId: null,
   search: null,
   actions: {
