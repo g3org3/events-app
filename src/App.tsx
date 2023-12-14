@@ -244,6 +244,13 @@ function SelectedEvent() {
   const events = useStore(store => store.events)
   const addNotes = useStore(store => store.actions.addNotes)
   const event = events.find(x => x.id === selectedEventId)
+  const [state, setState] = useState(event?.notes || '')
+  const debouncedState = useDebounce(state, 500)
+
+  useEffect(() => {
+    if (!selectedEventId) return
+    addNotes(selectedEventId, debouncedState)
+  }, [debouncedState])
 
   if (!event) {
     return <Flex>
@@ -253,15 +260,14 @@ function SelectedEvent() {
   }
 
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!selectedEventId) return 
-    addNotes(selectedEventId, e.target.value)
+    setState(e.target.value)
   }
 
   return <Flex flexDir="column" flex="1" gap="3">
     <Flex borderBottom="1px solid" borderColor="gray.400" fontSize="x-large">
       {event.title}
     </Flex>
-    <Textarea onChange={onChange} value={event.notes || ''} placeholder="type here some notes..." bg="white" flex="1" />
+    <Textarea onChange={onChange} value={state} placeholder="type here some notes..." bg="white" flex="1" />
   </Flex>
 }
 
@@ -472,6 +478,20 @@ function Empty({ message, action }: { message: string, action: React.ReactNode }
     <Flex fontSize="lg">{message}</Flex>
     {action}
   </Flex>
+}
+
+export function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [value, delay])
+
+  return debouncedValue
 }
 
 export default App
