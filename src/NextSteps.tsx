@@ -5,8 +5,9 @@ import { DateTime } from 'luxon'
 import Empty from './Empty'
 import CreateNextStepModal from './CreateNextStepModal'
 import { eventRoute } from './Router'
-import { getNextSteps, updateNextStep } from './pb'
+import { getNextSteps, pb, updateNextStep } from './pb'
 import { queryClient } from './queryClient'
+import { useEffect } from 'react'
 
 
 export default function NextSteps() {
@@ -21,6 +22,19 @@ export default function NextSteps() {
       queryClient.invalidateQueries({ queryKey: ['get-next-steps', `event-id-${selectedEventId}`] })
     }
   })
+
+  useEffect(() => {
+    pb.collection('nextsteps').subscribe('*', function(e) {
+      console.log(e)
+      if (e.record.eventId === selectedEventId) {
+        queryClient.invalidateQueries({ queryKey: ['get-next-steps', `event-id-${selectedEventId}`] })
+      }
+    })
+
+    return () => {
+      pb.collection('nextsteps').unsubscribe('*')
+    }
+  }, [])
 
   return <Flex flexDir="column" flex="1" gap="2" p="4">
     <Flex borderBottom="1px solid" borderColor="gray.400" py="2" fontSize="x-large">

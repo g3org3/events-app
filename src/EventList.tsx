@@ -7,7 +7,11 @@ import { DateTime } from 'luxon'
 import Empty from './Empty'
 import CreateEventModal from './CreateEventModal'
 import { EventsResponse, NextstepsResponse } from './pocket-types'
-import { getEvents } from './pb'
+import { getEvents, pb } from './pb'
+import { useEffect } from 'react'
+import { queryClient } from './queryClient'
+
+
 
 export default function EventList() {
   const { data: events = [], isLoading } = useQuery({
@@ -23,6 +27,17 @@ export default function EventList() {
       pending: _next.filter(ns => !ns.doneAt).length,
     }
   })
+
+  useEffect(() => {
+    pb.collection('events').subscribe('*', function(e) {
+      console.log(e)
+      queryClient.invalidateQueries({ queryKey: ['events'] })
+    })
+
+    return () => {
+      pb.collection('events').unsubscribe('*')
+    }
+  }, [])
 
   if (events.length === 0) {
     return <Empty
@@ -77,9 +92,9 @@ function EventComponent(props: { event: EventWithPending }) {
           <Flex fontSize="x-large">{props.event.title}</Flex>
           <Spacer />
           <Flex>{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
-          <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full">
-            {props.event.pending.toString().padStart(2, '0')}
-          </Flex>
+          {/* <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full"> */}
+          {/*   {props.event.pending.toString().padStart(2, '0')} */}
+          {/* </Flex> */}
         </Button>
       </Link>
     </Flex>
