@@ -14,7 +14,7 @@ export default function Empty({ message, action, isLoading }: Props) {
     </Flex>
   }
 
-  return <Flex flexDir="column" gap="4" height="32%" alignItems="center" justifyContent="center">
+  return <Flex flex="1" flexDir="column" gap="4" height="32%" alignItems="center" justifyContent="center">
     <Flex fontSize="lg">{message}</Flex>
     {action}
   </Flex>

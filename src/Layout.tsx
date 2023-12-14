@@ -13,7 +13,7 @@ export default function Layout(props: { children: React.ReactNode }) {
         </Flex>
         <SearchModal />
       </Flex>
-      <Flex flex="1" flexDir="column">
+      <Flex flex="1" flexDir="column" overflow="auto">
         {props.children}
       </Flex>
     </Flex>
