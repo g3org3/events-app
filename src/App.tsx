@@ -403,8 +403,8 @@ function SearchModal() {
 
   return (
     <>
-      <Button colorScheme="purple" variant={!query ? "outline" : "solid"} size="md" onClick={onOpen}>
-        {query ? `search: "${query}"` : "search"}
+      <Button isTruncated colorScheme="purple" variant={!query ? "outline" : "solid"} size="md" onClick={onOpen}>
+        {query ? `search: "${query.substr(0, 3)}..."` : "search"}
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

@@ -68,6 +68,8 @@ export const useStore = create<Store>((set) => ({
           events: state.events,
           nextSteps: state.nextSteps,
           doubts: state.doubts,
+          search: state.search,
+          filteredEventIds: state.filteredEventIds,
         })
       } catch {
       }
