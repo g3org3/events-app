@@ -1,17 +1,24 @@
 import { Flex, Button, Spacer, Checkbox } from '@chakra-ui/react'
 import { Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import Empty from './Empty'
 import CreateDoubtModal from './CreateDoubtModal'
-import { getNextSteps } from './pb'
+import { getNextSteps, updateNextStep } from './pb'
 import { eventRoute } from './Router'
+import { queryClient } from './queryClient'
 
 export default function Doubts() {
   const { id: selectedEventId } = eventRoute.useParams()
   const { data: doubts = [], isLoading } = useQuery({
     queryKey: ['get-doubts', `event-id-${selectedEventId}`],
     queryFn: () => getNextSteps(selectedEventId, 'doubt')
+  })
+  const { mutate, isPending } = useMutation({
+    mutationFn: (params: { nsId: string, checked: boolean }) => updateNextStep(params.nsId, params.checked),
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['get-doubts', `event-id-${selectedEventId}`] })
+    }
   })
 
   return <Flex flexDir="column" flex="1" gap="2" p="4">
@@ -21,10 +28,12 @@ export default function Doubts() {
     </Flex>
     <Flex flex="1" gap="2" overflow="auto" flexDir="column">
       {doubts.length > 0 && <CreateDoubtModal />}
-      {doubts.map(e => (
-        <Flex key={e.id} alignItems="center" gap="1">
+      {doubts.map(doubt => (
+        <Flex key={doubt.id} alignItems="center" gap="1">
           <Checkbox
-            isChecked={!!e.doneAt}
+            disabled={isPending}
+            onChange={(e) => mutate({ nsId: doubt.id, checked: e.target.checked })}
+            isChecked={!!doubt.doneAt}
             width="100%"
             bg="white"
             boxShadow="sm"
@@ -33,9 +42,9 @@ export default function Doubts() {
             flexDirection="row"
           >
             <Flex alignItems="center">
-              <Flex fontSize="x-large">{e.title}</Flex>
+              <Flex fontSize="x-large">{doubt.title}</Flex>
               <Spacer />
-              {e.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(e.doneAt).toRelative()}</Flex>}
+              {doubt.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(doubt.doneAt).toRelative()}</Flex>}
             </Flex>
           </Checkbox>
         </Flex>
