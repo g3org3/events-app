@@ -3,6 +3,7 @@ import { SmallAddIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
+import { useState } from 'react'
 
 import Empty from './Empty'
 import CreateEventModal from './CreateEventModal'
@@ -10,12 +11,11 @@ import { EventsWithNextSteps, getEvents, pb } from './pb'
 import { useEffect } from 'react'
 import { queryClient } from './queryClient'
 
-
-
 export default function EventList() {
+  const [filter, setFilter] = useState<null | 'pending'>(null)
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ['events'],
-    queryFn: () => getEvents()
+    queryKey: ['events', filter],
+    queryFn: () => getEvents({ filter })
   })
 
   useEffect(() => {
@@ -39,7 +39,12 @@ export default function EventList() {
 
   return (
     <Flex flex="1" gap="2" p="4" overflow="auto" flexDir="column">
-      <CreateEventModal />
+      <Flex gap="2" justifyContent="space-around">
+        <Button variant="outline" onClick={() => setFilter(filter === 'pending' ? null : 'pending')}>
+          {filter === 'pending' ? 'show all' : 'show pending'}
+        </Button>
+        <CreateEventModal />
+      </Flex>
       {isLoading && (
         <>
           <LoadingEvent />
