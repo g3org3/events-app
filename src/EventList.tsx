@@ -1,4 +1,4 @@
-import { Flex, Button, Spacer, Skeleton } from '@chakra-ui/react'
+import { Flex, Button, Text, Skeleton } from '@chakra-ui/react'
 import { SmallAddIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
@@ -96,8 +96,9 @@ function EventComponent(props: { event: EventWithPending }) {
           p="3"
           rounded="md"
         >
-          <Flex fontSize="x-large">{props.event.title}</Flex>
-          <Spacer />
+          <Flex flex="1" fontSize="x-large">
+            {props.event.title}
+          </Flex>
           <Flex>{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
           {/* <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full"> */}
           {/* {props.event.pending.toString().padStart(2, '0')} */}

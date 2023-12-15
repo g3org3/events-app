@@ -51,7 +51,7 @@ export default function SelectedEvent() {
     </Flex>
     {!event && <Flex flex="1" />}
     {event && state == null && !event.notes && <Empty message="No notes yet." action={<Button onClick={() => setState(event.notes)}>Edit</Button>} />}
-    {event && state == null && !!event.notes && <pre style={{ flex: '1', padding: '8px', border: '1px solid #ccc', background: 'white' }}>{event.notes}</pre>}
+    {event && state == null && !!event.notes && <pre style={{ overflow: 'auto', flex: '1', padding: '8px', border: '1px solid #ccc', background: 'white' }}>{event.notes}</pre>}
     {event && state != null && <Textarea disabled={isPending} onChange={onChange} value={state} placeholder="type here some notes..." bg="white" flex="1" />}
     <Flex bg="white" justifyContent="space-around" p="2" border="1px solid" borderColor="gray.300">
       <Link to="/event/$id/doubts" params={{ id: selectedEventId }}>
