@@ -64,13 +64,13 @@ interface EventWithPending extends EventsResponse {
 function EventComponent(props: { event: EventWithPending }) {
   return (
     <Flex key={props.event.id} alignItems="center" gap="1" p="1">
-      <Flex position="relative">
+      <Flex position="relative" alignItems="center">
         <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
         <Flex
           borderColor="gray.400"
           borderLeft="1px dashed"
-          bottom="-25px"
-          height="23px"
+          bottom="-47px"
+          height="40px"
           left="7px"
           position="absolute"
           width="1px"
@@ -82,12 +82,12 @@ function EventComponent(props: { event: EventWithPending }) {
           bg="white"
           border="1px solid"
           borderColor="gray.200"
-          boxShadow="sm"
+          boxShadow="md"
           display="flex"
           flex="1"
           gap="3"
           p="3"
-          rounded="sm"
+          rounded="md"
         >
           <Flex fontSize="x-large">{props.event.title}</Flex>
           <Spacer />

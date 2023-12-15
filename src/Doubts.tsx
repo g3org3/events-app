@@ -4,9 +4,10 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import Empty from './Empty'
 import CreateDoubtModal from './CreateDoubtModal'
-import { getNextSteps, updateNextStep } from './pb'
+import { getNextSteps, pb, updateNextStep } from './pb'
 import { eventRoute } from './Router'
 import { queryClient } from './queryClient'
+import { useEffect } from 'react'
 
 export default function Doubts() {
   const { id: selectedEventId } = eventRoute.useParams()
@@ -20,6 +21,19 @@ export default function Doubts() {
       queryClient.invalidateQueries({ queryKey: ['get-doubts', `event-id-${selectedEventId}`] })
     }
   })
+
+  useEffect(() => {
+    pb.collection('nextsteps').subscribe('*', function(e) {
+      console.log(e)
+      if (e.record.eventId === selectedEventId && e.record.type === 'doubt') {
+        queryClient.invalidateQueries({ queryKey: ['get-doubts', `event-id-${selectedEventId}`] })
+      }
+    })
+
+    return () => {
+      pb.collection('nextsteps').unsubscribe('*')
+    }
+  }, [])
 
   return <Flex flexDir="column" flex="1" gap="2" p="4">
     <Flex borderBottom="1px solid" borderColor="gray.400" py="2" fontSize="x-large">

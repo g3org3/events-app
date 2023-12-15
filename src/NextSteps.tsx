@@ -26,7 +26,7 @@ export default function NextSteps() {
   useEffect(() => {
     pb.collection('nextsteps').subscribe('*', function(e) {
       console.log(e)
-      if (e.record.eventId === selectedEventId) {
+      if (e.record.eventId === selectedEventId && e.record.type === 'nextstep') {
         queryClient.invalidateQueries({ queryKey: ['get-next-steps', `event-id-${selectedEventId}`] })
       }
     })
