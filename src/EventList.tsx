@@ -1,5 +1,5 @@
 import { Flex, Button, Skeleton } from '@chakra-ui/react'
-import { SmallAddIcon } from '@chakra-ui/icons'
+import { SmallAddIcon, ViewIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
@@ -91,6 +91,7 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
             {props.event.title}
           </Flex>
           {props.event.authorId !== pb.authStore.model?.id && <Flex bg="purple.500" color="white" rounded="md" px="2" py="1">shared</Flex>}
+          {props.event.sharedWith.length > 0 && props.event.authorId === pb.authStore.model?.id && <Flex bg="purple.500" color="white" rounded="md" px="2" py="1"><ViewIcon /></Flex>}
           <Flex flexDir="column" alignItems="flex-end" gap="2">
             <Flex gap="2">
               <Flex opacity={props.event.pending.filter(x => x.type === 'doubt').length > 0 ? '1' : '0.2'} fontFamily="monospace" alignItems="center" bg="blue.500" color="white" px="2" rounded="full">
