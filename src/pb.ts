@@ -53,7 +53,7 @@ export const getEvents = async (params: { filter: null | 'pending' }) => {
 
   const ns = await pb.collection(Collections.Nextsteps)
     .getFullList<NextstepsResponse<{ eventId: EventsResponse }>>({
-      filter: `authorId='${pb.authStore.model.id}' && doneAt=''`,
+      filter: `(authorId='${pb.authStore.model.id}' || eventId.sharedWith~'${pb.authStore.model.id}') && doneAt=''`,
       sort: '-created', expand: 'eventId',
     })
 

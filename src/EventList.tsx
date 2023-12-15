@@ -10,6 +10,7 @@ import CreateEventModal from './CreateEventModal'
 import { EventsWithNextSteps, getEvents, pb } from './pb'
 import { useEffect } from 'react'
 import { queryClient } from './queryClient'
+import { EventsResponse } from './pocket-types'
 
 export default function EventList() {
   const [filter, setFilter] = useState<null | 'pending'>(null)
@@ -21,11 +22,21 @@ export default function EventList() {
   useEffect(() => {
     pb.collection('events').subscribe('*', function(e) {
       console.log(e)
+      const event = e.record as EventsResponse
+      if (event.authorId === pb.authStore.model?.id && event.sharedWith.includes(pb.authStore.model?.id)) {
+        queryClient.invalidateQueries({ queryKey: ['events'] })
+      }
+    })
+
+    pb.collection('nextsteps').subscribe('*', function(e) {
+      console.log(e)
+      // const nextstep = e.record as NextstepsResponse
       queryClient.invalidateQueries({ queryKey: ['events'] })
     })
 
     return () => {
       pb.collection('events').unsubscribe('*')
+      pb.collection('nextsteps').unsubscribe('*')
     }
   }, [])
 
