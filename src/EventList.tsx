@@ -79,7 +79,7 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           alignItems="center"
           bg="white"
           border="1px solid"
-          borderColor="gray.200"
+          borderColor={props.event.authorId !== pb.authStore.model?.id ? 'purple.600' : 'gray.50'}
           boxShadow="md"
           display="flex"
           flex="1"
@@ -90,6 +90,7 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           <Flex flex="1" fontSize="x-large">
             {props.event.title}
           </Flex>
+          {props.event.authorId !== pb.authStore.model?.id && <Flex bg="purple.500" color="white" rounded="md" px="2" py="1">shared</Flex>}
           <Flex flexDir="column" alignItems="flex-end" gap="2">
             <Flex gap="2">
               <Flex opacity={props.event.pending.filter(x => x.type === 'doubt').length > 0 ? '1' : '0.2'} fontFamily="monospace" alignItems="center" bg="blue.500" color="white" px="2" rounded="full">
@@ -103,7 +104,7 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           </Flex>
         </Button>
       </Link>
-    </Flex>
+    </Flex >
   )
 }
 

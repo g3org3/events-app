@@ -45,7 +45,11 @@ export const getEvents = async (params: { filter: null | 'pending' }) => {
   if (!pb.authStore.model) return []
 
   const events = await pb.collection(Collections.Events)
-    .getFullList<EventsResponse>({ filter: `authorId = '${pb.authStore.model.id}'`, sort: '-created' })
+    .getFullList<EventsResponse>({
+      filter: `authorId='${pb.authStore.model.id}' || sharedWith ~ '${pb.authStore.model.id}'`,
+      sort: '-created',
+      expand: 'authorId',
+    })
 
   const ns = await pb.collection(Collections.Nextsteps)
     .getFullList<NextstepsResponse<{ eventId: EventsResponse }>>({

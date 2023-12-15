@@ -53,7 +53,8 @@ export type AuthSystemFields<T = never> = {
 
 export type EventsRecord = {
 	authorId?: RecordIdString
-	notes?: HTMLString
+	notes?: string
+	sharedWith?: RecordIdString[]
 	title: string
 }
 
