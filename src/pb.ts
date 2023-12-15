@@ -32,7 +32,6 @@ export const updateNextStep = async (id: string, checked: boolean) => {
 export const updateEvent = async (id: string, notes: string) => {
   if (!pb.authStore.model) return
 
-  console.log('->', notes)
   const res = await pb.collection(Collections.Events)
     .update<EventsResponse>(id, { notes })
 
@@ -44,7 +43,17 @@ export const getEvents = async () => {
   const events = await pb.collection(Collections.Events)
     .getFullList<EventsResponse>({ filter: `authorId = '${pb.authStore.model.id}'`, sort: '-created' })
 
-  return events
+  const ns = await pb.collection(Collections.Nextsteps)
+    .getFullList<NextstepsResponse>({ filter: `authorId='${pb.authStore.model.id}' && doneAt=''`, sort: '-created' })
+
+  const newEvents = events.map(event => {
+    const pending = ns.filter(n => n.eventId === event.id)
+    // @ts-ignore
+    event.pending = pending
+    return event 
+  })
+
+  return newEvents
 }
 
 export const getEvent = async (id: string) => {
@@ -63,7 +72,7 @@ export const getNextSteps = async (eventId: string, type: 'doubt' | 'nextstep') 
   }
 
   const events = await pb.collection(Collections.Nextsteps)
-    .getFullList<NextstepsResponse>({ filter })
+    .getFullList<NextstepsResponse>({ filter, sort: '-created' })
 
   return events
 }

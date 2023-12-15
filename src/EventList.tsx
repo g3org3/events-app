@@ -1,4 +1,4 @@
-import { Flex, Button, Spacer } from '@chakra-ui/react'
+import { Flex, Button, Spacer, Skeleton } from '@chakra-ui/react'
 import { SmallAddIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
@@ -39,7 +39,7 @@ export default function EventList() {
     }
   }, [])
 
-  if (events.length === 0) {
+  if (events.length === 0 && !isLoading) {
     return <Empty
       isLoading={isLoading}
       message="You don't have any events."
@@ -50,6 +50,13 @@ export default function EventList() {
   return (
     <Flex flex="1" gap="2" p="4" overflow="auto" flexDir="column">
       <CreateEventModal />
+      {isLoading && (
+        <>
+          <LoadingEvent />
+          <LoadingEvent />
+          <LoadingEvent />
+        </>
+      )}
       {nsEvents.map(e => (
         <EventComponent key={e.id} event={e} />
       ))}
@@ -93,10 +100,28 @@ function EventComponent(props: { event: EventWithPending }) {
           <Spacer />
           <Flex>{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
           {/* <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full"> */}
-          {/*   {props.event.pending.toString().padStart(2, '0')} */}
+          {/* {props.event.pending.toString().padStart(2, '0')} */}
           {/* </Flex> */}
         </Button>
       </Link>
     </Flex>
   )
+}
+
+function LoadingEvent() {
+  return <Flex p="1" gap="1" alignItems="center">
+    <Flex position="relative" alignItems="center">
+      <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
+      <Flex
+        borderColor="gray.400"
+        borderLeft="1px dashed"
+        bottom="-47px"
+        height="40px"
+        left="7px"
+        position="absolute"
+        width="1px"
+      />
+    </Flex>
+    <Skeleton flex="1" height="54px" rounded="md" />
+  </Flex>
 }

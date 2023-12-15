@@ -1,8 +1,8 @@
 import {
   Button,
   Flex,
-  Spacer,
 } from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 // import SearchModal from './SearchModal'
 import { pb } from './pb'
@@ -15,11 +15,15 @@ export default function Layout(props: { children: React.ReactNode }) {
 
   return (
     <Flex background="gray.50" h="100dvh" flexDir="column">
-      <Flex bg="white" py="2" px="4" boxShadow="md" alignItems="center" gap="4">
+      <Flex bg="white" py="2" px="4" boxShadow="md" alignItems="center" gap="4" justifyContent="space-between">
         <Flex fontWeight="bold">
-          <Link to="/">Events</Link>
+          <Link to="/">
+            <Button>
+              <ArrowBackIcon />
+            </Button>
+          </Link>
         </Flex>
-        <Spacer />
+        <Flex fontSize="x-large">Events</Flex>
         {/* <SearchModal /> */}
         <Button onClick={onLogout}>Logout</Button>
       </Flex>
