@@ -59,6 +59,7 @@ export default function Doubts() {
               <Flex fontSize="x-large">{doubt.title}</Flex>
               <Spacer />
               {doubt.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(doubt.doneAt).toRelative()}</Flex>}
+              {!doubt.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(doubt.created).toRelative()}</Flex>}
             </Flex>
           </Checkbox>
         </Flex>

@@ -60,6 +60,7 @@ export default function NextSteps() {
               <Flex fontSize="x-large">{ns.title}</Flex>
               <Spacer />
               {ns.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(ns.doneAt).toRelative()}</Flex>}
+              {!ns.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(ns.created).toRelative()}</Flex>}
             </Flex>
           </Checkbox>
         </Flex>
