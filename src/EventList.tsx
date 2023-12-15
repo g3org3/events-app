@@ -6,8 +6,7 @@ import { DateTime } from 'luxon'
 
 import Empty from './Empty'
 import CreateEventModal from './CreateEventModal'
-import { EventsResponse, NextstepsResponse } from './pocket-types'
-import { getEvents, pb } from './pb'
+import { EventsWithNextSteps, getEvents, pb } from './pb'
 import { useEffect } from 'react'
 import { queryClient } from './queryClient'
 
@@ -17,15 +16,6 @@ export default function EventList() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: () => getEvents()
-  })
-  const nextSteps: NextstepsResponse[] = []
-  const nsEvents = events.map(e => {
-    const _next = nextSteps.filter(ns => ns.eventId === e.id)
-
-    return {
-      ...e,
-      pending: _next.filter(ns => !ns.doneAt).length,
-    }
   })
 
   useEffect(() => {
@@ -57,18 +47,14 @@ export default function EventList() {
           <LoadingEvent />
         </>
       )}
-      {nsEvents.map(e => (
+      {events.map(e => (
         <EventComponent key={e.id} event={e} />
       ))}
     </Flex>
   )
 }
 
-interface EventWithPending extends EventsResponse {
-  pending: number
-}
-
-function EventComponent(props: { event: EventWithPending }) {
+function EventComponent(props: { event: EventsWithNextSteps }) {
   return (
     <Flex key={props.event.id} alignItems="center" gap="1" p="1">
       <Flex position="relative" alignItems="center">
@@ -99,10 +85,17 @@ function EventComponent(props: { event: EventWithPending }) {
           <Flex flex="1" fontSize="x-large">
             {props.event.title}
           </Flex>
-          <Flex>{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
-          {/* <Flex fontFamily="monospace" alignItems="center" bg="blue.600" color="white" px="2" rounded="full"> */}
-          {/* {props.event.pending.toString().padStart(2, '0')} */}
-          {/* </Flex> */}
+          <Flex flexDir="column" alignItems="flex-end" gap="2">
+            <Flex gap="2">
+              <Flex opacity={props.event.pending.filter(x => x.type === 'doubt').length > 0 ? '1' : '0.2'} fontFamily="monospace" alignItems="center" bg="blue.500" color="white" px="2" rounded="full">
+                {props.event.pending.filter(x => x.type === 'doubt').length.toString().padStart(2, '0')}
+              </Flex>
+              <Flex opacity={props.event.pending.filter(x => x.type === 'nextstep').length > 0 ? '1' : '0.2'} fontFamily="monospace" alignItems="center" bg="blue.500" color="white" px="2" rounded="full">
+                {props.event.pending.filter(x => x.type === 'nextstep').length.toString().padStart(2, '0')}
+              </Flex>
+            </Flex>
+            <Flex color="gray.400" fontSize="small">{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
+          </Flex>
         </Button>
       </Link>
     </Flex>

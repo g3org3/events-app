@@ -41,7 +41,7 @@ export default function SelectedEvent() {
       mutate(state)
   }
 
-  return <Flex flexDir="column" flex="1" gap="3" p="4">
+  return <Flex flexDir="column" flex="1" gap="3" p="4" overflow="auto">
     <Flex borderBottom="1px solid" borderColor="gray.400" py="2" fontSize="x-large">
       {event?.title}
       {isLoading && <Skeleton>Event is loading...</Skeleton>}

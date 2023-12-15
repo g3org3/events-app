@@ -38,19 +38,26 @@ export const updateEvent = async (id: string, notes: string) => {
   return res
 }
 
+export interface EventsWithNextSteps extends EventsResponse {
+  pending: NextstepsResponse[]
+}
 export const getEvents = async () => {
   if (!pb.authStore.model) return []
+
+  // TODO: can be improve to only 1 api call, with expand
   const events = await pb.collection(Collections.Events)
     .getFullList<EventsResponse>({ filter: `authorId = '${pb.authStore.model.id}'`, sort: '-created' })
 
   const ns = await pb.collection(Collections.Nextsteps)
     .getFullList<NextstepsResponse>({ filter: `authorId='${pb.authStore.model.id}' && doneAt=''`, sort: '-created' })
 
-  const newEvents = events.map(event => {
+  const newEvents = events.map((event) => {
     const pending = ns.filter(n => n.eventId === event.id)
-    // @ts-ignore
-    event.pending = pending
-    return event 
+    const newevent: EventsWithNextSteps = {
+      ...event,
+      pending,
+    }
+    return newevent
   })
 
   return newEvents
