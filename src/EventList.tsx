@@ -1,5 +1,5 @@
-import { Flex, Button, Skeleton } from '@chakra-ui/react'
-import { SmallAddIcon, ViewIcon } from '@chakra-ui/icons'
+import { Flex, Button, Skeleton, Text, Spacer } from '@chakra-ui/react'
+import { SmallAddIcon, ViewIcon, EmailIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
@@ -63,7 +63,8 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
   return (
     <Flex key={props.event.id} alignItems="center" gap="1" p="1">
       <Flex position="relative" alignItems="center">
-        <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
+        {props.event.authorId === pb.authStore.model?.id ? <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
+          : <EmailIcon color="purple.700" />}
         <Flex
           borderColor="gray.400"
           borderLeft="1px dashed"
@@ -74,22 +75,22 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           width="1px"
         />
       </Flex>
-      <Link style={{ display: 'flex', flexDirection: 'column', flex: 1 }} to="/event/$id" params={{ id: props.event.id }}>
+      <Link style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }} to="/event/$id" params={{ id: props.event.id }}>
         <Button
           alignItems="center"
           bg="white"
           border="1px solid"
-          borderColor={props.event.authorId !== pb.authStore.model?.id ? 'purple.600' : 'gray.50'}
-          boxShadow="md"
+          borderColor={props.event.authorId !== pb.authStore.model?.id ? 'purple.500' : 'gray.50'}
           display="flex"
           flex="1"
           gap="3"
           p="3"
           rounded="md"
         >
-          <Flex flex="1" fontSize="x-large">
+          <Text fontSize="l" isTruncated>
             {props.event.title}
-          </Flex>
+          </Text>
+          <Spacer />
           {props.event.authorId !== pb.authStore.model?.id && <Flex bg="purple.500" color="white" rounded="md" px="2" py="1">shared</Flex>}
           {props.event.sharedWith.length > 0 && props.event.authorId === pb.authStore.model?.id && <Flex bg="purple.500" color="white" rounded="md" px="2" py="1"><ViewIcon /></Flex>}
           <Flex flexDir="column" alignItems="flex-end" gap="2">
