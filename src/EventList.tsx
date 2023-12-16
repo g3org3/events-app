@@ -15,9 +15,10 @@ import { EventsResponse } from './pocket-types'
 export default function EventList() {
   const [filter, setFilter] = useState<null | 'pending'>(null)
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ['events', filter],
-    queryFn: () => getEvents({ filter })
+    queryKey: ['events'],
+    queryFn: () => getEvents()
   })
+  const filteredEvents = filter === 'pending' ? events.filter(e => e.pending.length > 0) : events
 
   useEffect(() => {
     pb.collection('events').subscribe('*', function(e) {
@@ -40,7 +41,7 @@ export default function EventList() {
     }
   }, [])
 
-  if (events.length === 0 && !isLoading) {
+  if (filteredEvents.length === 0 && !isLoading) {
     return <Empty
       isLoading={isLoading}
       message="You don't have any events."
@@ -71,9 +72,12 @@ export default function EventList() {
           <LoadingEvent />
         </>
       )}
-      {events.map(e => (
+      {filteredEvents.map(e => (
         <EventComponent key={e.id} event={e} />
       ))}
+      <Flex p="4" color="gray.400" justifyContent="center">
+        You reached the bottom
+      </Flex>
     </Flex>
   )
 }
