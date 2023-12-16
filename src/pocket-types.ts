@@ -80,6 +80,7 @@ export type NextstepsRecord = {
 	authorId?: RecordIdString
 	doneAt?: IsoDateString
 	eventId?: RecordIdString
+	remindAt?: IsoDateString
 	title?: string
 	type?: NextstepsTypeOptions
 }
