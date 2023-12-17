@@ -17,9 +17,6 @@ export default function Doubts() {
   })
   const { mutate, isPending } = useMutation({
     mutationFn: (params: { nsId: string, checked: boolean }) => updateNextStep(params.nsId, params.checked),
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['get-doubts', `event-id-${selectedEventId}`] })
-    }
   })
 
   useEffect(() => {
@@ -27,6 +24,7 @@ export default function Doubts() {
       console.log(e)
       if (e.record.eventId === selectedEventId && e.record.type === 'doubt') {
         queryClient.invalidateQueries({ queryKey: ['get-doubts', `event-id-${selectedEventId}`] })
+        queryClient.invalidateQueries({ queryKey: ['events'] })
       }
     })
 

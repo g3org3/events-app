@@ -20,9 +20,6 @@ export default function NextSteps() {
   })
   const { mutate, isPending } = useMutation({
     mutationFn: (params: { nsId: string, checked: boolean }) => updateNextStep(params.nsId, params.checked),
-    onSuccess() {
-      queryClient.invalidateQueries({ queryKey: ['get-next-steps', `event-id-${selectedEventId}`] })
-    }
   })
 
   useEffect(() => {
@@ -30,6 +27,7 @@ export default function NextSteps() {
       console.log(e)
       if (e.record.eventId === selectedEventId && e.record.type === 'nextstep') {
         queryClient.invalidateQueries({ queryKey: ['get-next-steps', `event-id-${selectedEventId}`] })
+        queryClient.invalidateQueries({ queryKey: ['events'] })
       }
     })
 
