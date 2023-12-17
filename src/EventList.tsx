@@ -1,5 +1,5 @@
 import { Flex, Button, Skeleton, Text, Spacer, Progress } from '@chakra-ui/react'
-import { SmallAddIcon, ViewIcon, EmailIcon } from '@chakra-ui/icons'
+import { SmallAddIcon, ViewIcon, EmailIcon, BellIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
@@ -13,12 +13,18 @@ import { queryClient } from './queryClient'
 import { EventsResponse } from './pocket-types'
 
 export default function EventList() {
-  const [filter, setFilter] = useState<null | 'pending'>(null)
+  const [filter, setFilter] = useState<null | 'pending' | 'reminders'>(null)
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: () => getEvents()
   })
-  const filteredEvents = filter === 'pending' ? events.filter(e => e.pending.length > 0) : events
+  let filteredEvents = events
+  if (filter === 'pending') {
+    filteredEvents = events.filter(e => e.pending.length > 0)
+  }
+  if (filter === 'reminders') {
+    filteredEvents = events.filter(e => e.pending.filter(p => !!p.remindAt).length > 0)
+  }
 
   useEffect(() => {
     pb.collection('events').subscribe('*', function(e) {
@@ -62,6 +68,9 @@ export default function EventList() {
       <Flex gap="2" justifyContent="space-around">
         <Button variant="outline" onClick={() => setFilter(filter === 'pending' ? null : 'pending')}>
           {filter === 'pending' ? 'show all' : 'show pending'}
+        </Button>
+        <Button variant="outline" onClick={() => setFilter(filter === 'reminders' ? null : 'reminders')}>
+          {filter === 'reminders' ? 'Hide reminders' : 'Show reminders'}
         </Button>
         <CreateEventModal />
       </Flex>
@@ -118,16 +127,41 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           {props.event.sharedWith.length > 0 && props.event.authorId === pb.authStore.model?.id && <Flex bg="purple.500" color="white" rounded="md" px="2" py="1"><ViewIcon /></Flex>}
           <Flex flexDir="column" alignItems="flex-end" gap="2">
             <Flex gap="2">
-              <Flex opacity={props.event.pending.filter(x => x.type === 'doubt').length > 0 ? '1' : '0.2'} fontFamily="monospace" alignItems="center" bg="blue.500" color="white" px="2" rounded="full">
+              <Flex
+                alignItems="center"
+                bg="cyan.500"
+                color="white"
+                fontFamily="monospace"
+                opacity={props.event.pending.filter(x => x.type === 'doubt').length > 0 ? '1' : '0.1'}
+                px="2"
+                rounded="full"
+              >
                 {props.event.pending.filter(x => x.type === 'doubt').length.toString().padStart(2, '0')}
               </Flex>
-              <Flex opacity={props.event.pending.filter(x => x.type === 'nextstep').length > 0 ? '1' : '0.2'} fontFamily="monospace" alignItems="center" bg="blue.500" color="white" px="2" rounded="full">
+              <Flex
+                alignItems="center"
+                bg="blue.500"
+                color="white"
+                fontFamily="monospace"
+                opacity={props.event.pending.filter(x => x.type === 'nextstep').length > 0 ? '1' : '0.1'}
+                px="2"
+                rounded="full"
+              >
                 {props.event.pending.filter(x => x.type === 'nextstep').length.toString().padStart(2, '0')}
               </Flex>
             </Flex>
             <Flex color="gray.400" fontSize="small">{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
           </Flex>
         </Button>
+        <Flex bg="white" flexDir="column">
+          {props.event.pending.filter(p => p.remindAt).map(p => (
+            <Flex px="4" alignItems="center" gap="2">
+              <Flex><BellIcon color="green.600" /></Flex>
+              <Flex flex="1">{p.title}</Flex>
+              <Flex>{DateTime.fromSQL(p.remindAt).toRelative()}</Flex>
+            </Flex>
+          ))}
+        </Flex>
       </Link>
     </Flex >
   )

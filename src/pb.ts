@@ -87,8 +87,15 @@ export const getEvents = async () => {
   return newEvents
 }
 
+export const updateReminder = async (id: string, remindAt: string) => {
+  if (!pb.authStore.model) return
+
+  await pb.collection(Collections.Nextsteps)
+    .update<NextstepsRecord>(id, { remindAt })
+}
+
 export const getEvent = async (id: string) => {
-  if (!pb.authStore.model) return undefined
+  if (!pb.authStore.model) return
   const event = await pb.collection(Collections.Events)
     .getOne<EventsResponse>(id)
 
