@@ -10,6 +10,7 @@ import { getNextSteps, pb, updateNextStep, updateReminder } from './pb'
 import { queryClient } from './queryClient'
 import { useEffect } from 'react'
 import GenericModal from './GenericModal'
+import { isDateInTheFuture } from './utils/date'
 
 
 export default function NextSteps() {
@@ -59,9 +60,9 @@ export default function NextSteps() {
             <Flex alignItems="center" gap="2">
               <Flex fontSize="x-large" flex="1">{ns.title}</Flex>
               <Flex flexDir="column" alignItems="flex-end">
-                {ns.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(ns.doneAt).toRelative()}</Flex>}
-                {!ns.doneAt && <Flex fontSize="sm">{DateTime.fromSQL(ns.created).toRelative()}</Flex>}
-                {DateTime.fromSQL(ns.remindAt).toRelative()?.includes('in ') && <Flex>Due: {DateTime.fromSQL(ns.remindAt).toRelative()}</Flex>}
+                {!isDateInTheFuture(ns.remindAt) && ns.doneAt && <Flex fontSize="sm">Done {DateTime.fromSQL(ns.doneAt).toRelative()}</Flex>}
+                {!isDateInTheFuture(ns.remindAt) && !ns.doneAt && <Flex fontSize="sm">Created {DateTime.fromSQL(ns.created).toRelative()}</Flex>}
+                {isDateInTheFuture(ns.remindAt) && <Flex>Due {DateTime.fromSQL(ns.remindAt).toRelative()}</Flex>}
               </Flex>
             </Flex>
           </Checkbox>
@@ -77,7 +78,7 @@ export default function NextSteps() {
         <Button variant="ghost">Doubts</Button>
       </Link>
       <Link to="/event/$id" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Events</Button>
+        <Button variant="ghost">Notes</Button>
       </Link>
       <Link to="/event/$id/next-steps" params={{ id: selectedEventId }}>
         <Button variant="ghost">Next Steps</Button>
@@ -109,7 +110,7 @@ function ReminderModal(props: { nsId: string, remindAt?: string }) {
     onOpen={onOpen}
     onClose={onClose}
   >
-    <Button flexShrink="0" colorScheme={props.remindAt ? 'red' : 'gray'} size="md" variant="ghost" onClick={onOpen}>
+    <Button flexShrink="0" colorScheme={isDateInTheFuture(props.remindAt) ? 'red' : 'gray'} size="md" variant="ghost" onClick={onOpen}>
       <BellIcon />
     </Button>
   </GenericModal>

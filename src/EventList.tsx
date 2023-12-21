@@ -11,6 +11,7 @@ import { EventsWithNextSteps, getEvents, pb } from './pb'
 import { useEffect } from 'react'
 import { queryClient } from './queryClient'
 import { EventsResponse } from './pocket-types'
+import { isDateInTheFuture } from './utils/date'
 
 export default function EventList() {
   const [filter, setFilter] = useState<null | 'pending' | 'reminders'>(null)
@@ -23,7 +24,7 @@ export default function EventList() {
     filteredEvents = events.filter(e => e.pending.length > 0)
   }
   if (filter === 'reminders') {
-    filteredEvents = events.filter(e => e.pending.filter(p => !!p.remindAt).length > 0)
+    filteredEvents = events.filter(e => e.pending.filter(p => isDateInTheFuture(p.remindAt)).length > 0)
   }
 
   useEffect(() => {
@@ -67,16 +68,15 @@ export default function EventList() {
       )}
       <Flex gap="2" justifyContent="space-around">
         <Button variant="outline" onClick={() => setFilter(filter === 'pending' ? null : 'pending')}>
-          {filter === 'pending' ? 'show all' : 'show pending'}
+          {filter === 'pending' ? 'show all' : 'show pndng'}
         </Button>
         <Button variant="outline" onClick={() => setFilter(filter === 'reminders' ? null : 'reminders')}>
-          {filter === 'reminders' ? 'Hide reminders' : 'Show reminders'}
+          {filter === 'reminders' ? 'show all' : 'Show rmndrs'}
         </Button>
         <CreateEventModal />
       </Flex>
       {isLoading && (
         <>
-          <LoadingEvent />
           <LoadingEvent />
           <LoadingEvent />
         </>
@@ -154,7 +154,7 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           </Flex>
         </Button>
         <Flex bg="white" flexDir="column">
-          {props.event.pending.filter(p => p.remindAt).map(p => (
+          {props.event.pending.filter(p => isDateInTheFuture(p.remindAt)).map(p => (
             <Flex px="4" alignItems="center" gap="2">
               <Flex><BellIcon color="green.600" /></Flex>
               <Flex flex="1">{p.title}</Flex>

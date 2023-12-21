@@ -70,7 +70,7 @@ export default function SelectedEvent() {
         <Button variant="ghost">Doubts</Button>
       </Link>
       <Link to="/event/$id" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Events</Button>
+        <Button variant="ghost">Notes</Button>
       </Link>
       <Link to="/event/$id/next-steps" params={{ id: selectedEventId }}>
         <Button variant="ghost">Next Steps</Button>
