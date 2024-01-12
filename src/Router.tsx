@@ -4,6 +4,7 @@ import {
   Route,
   RootRoute,
 } from '@tanstack/react-router'
+import z from 'zod'
 import Layout from './Layout'
 import EventList from './EventList'
 import SelectedEvent from './SelectedEvent'
@@ -18,10 +19,15 @@ const rootRoute = new RootRoute({
   ),
 })
 
+const indexRouteSearchSchema = z.object({
+  query: z.string().nullish(),
+})
+
 export const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/',
   component: EventList,
+  validateSearch: indexRouteSearchSchema,
 })
 
 export const eventRoute = new Route({

@@ -1,6 +1,6 @@
-import { Flex, Button, Skeleton, Text, Spacer, Progress } from '@chakra-ui/react'
+import { Flex, Button, Skeleton, Text, Spacer, Progress, Input } from '@chakra-ui/react'
 import { SmallAddIcon, ViewIcon, EmailIcon, BellIcon } from '@chakra-ui/icons'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import { useState } from 'react'
@@ -12,12 +12,39 @@ import { useEffect } from 'react'
 import { queryClient } from './queryClient'
 import { EventsResponse } from './pocket-types'
 import { isDateInTheFuture } from './utils/date'
+import { useDebounce } from './debounce.hook'
+import { indexRoute } from './Router'
+
+function SearchEventInput() {
+  const [state, setState] = useState('')
+  const debouncedValue = useDebounce(state, 400)
+  const navigate = useNavigate({ from: indexRoute.fullPath })
+
+  useEffect(() => {
+    navigate({
+      search: {
+        query: debouncedValue
+      }
+    })
+  }, [debouncedValue])
+
+  return (
+    <Input
+      placeholder="search"
+      value={state}
+      onChange={(e) => setState(e.target.value)}
+    />
+  )
+}
 
 export default function EventList() {
   const [filter, setFilter] = useState<null | 'pending' | 'reminders'>(null)
+  const search = useSearch({
+    from: indexRoute.fullPath,
+  })
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ['events'],
-    queryFn: () => getEvents()
+    queryKey: ['events', search.query],
+    queryFn: () => getEvents(search.query),
   })
   let filteredEvents = events
   if (filter === 'pending') {
@@ -48,7 +75,7 @@ export default function EventList() {
     }
   }, [])
 
-  if (filteredEvents.length === 0 && !isLoading) {
+  if (!search.query && filteredEvents.length === 0 && !isLoading) {
     return <Empty
       isLoading={isLoading}
       message="You don't have any events."
@@ -58,21 +85,22 @@ export default function EventList() {
 
   return (
     <Flex flex="1" gap="2" p="4" overflow="auto" flexDir="column" position="relative">
-      {isLoading && (
-        <Flex flexDir="column" alignItems="center" justifyContent="center" zIndex="10" bg="white" position="fixed" top="0" left="0" width="100%" height="100%">
-          <Flex fontSize="6xl">Events</Flex>
-          <Flex display="block" bg="blue.400" w="200px">
-            <Progress size="xs" colorScheme="purple" isIndeterminate />
-          </Flex>
-        </Flex>
-      )}
+      {/* {isLoading && ( */}
+      {/*   <Flex flexDir="column" alignItems="center" justifyContent="center" zIndex="10" bg="white" position="fixed" top="0" left="0" width="100%" height="100%"> */}
+      {/*     <Flex fontSize="6xl">Events</Flex> */}
+      {/*     <Flex display="block" bg="blue.400" w="200px"> */}
+      {/*       <Progress size="xs" colorScheme="purple" isIndeterminate /> */}
+      {/*     </Flex> */}
+      {/*   </Flex> */}
+      {/* )} */}
       <Flex gap="2" justifyContent="space-around">
         <Button variant="outline" onClick={() => setFilter(filter === 'pending' ? null : 'pending')}>
-          {filter === 'pending' ? 'show all' : 'show pndng'}
+          {filter === 'pending' ? 'show all' : 'sw pndng'}
         </Button>
         <Button variant="outline" onClick={() => setFilter(filter === 'reminders' ? null : 'reminders')}>
-          {filter === 'reminders' ? 'show all' : 'Show rmndrs'}
+          {filter === 'reminders' ? 'show all' : 'sw rmndrs'}
         </Button>
+        <SearchEventInput />
         <CreateEventModal />
       </Flex>
       {isLoading && (
@@ -93,7 +121,7 @@ export default function EventList() {
 
 function EventComponent(props: { event: EventsWithNextSteps }) {
   return (
-    <Flex key={props.event.id} alignItems="center" gap="1" p="1">
+    <Flex alignItems="center" gap="1" p="1">
       <Flex position="relative" alignItems="center">
         {props.event.authorId === pb.authStore.model?.id ? <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
           : <EmailIcon color="purple.700" />}
@@ -111,8 +139,9 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
         <Button
           alignItems="center"
           bg="white"
+          boxShadow="md"
           border="1px solid"
-          borderColor={props.event.authorId !== pb.authStore.model?.id ? 'purple.500' : 'gray.50'}
+          borderColor={props.event.authorId !== pb.authStore.model?.id ? 'purple.500' : 'gray.300'}
           display="flex"
           flex="1"
           gap="3"

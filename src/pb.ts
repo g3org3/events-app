@@ -41,12 +41,15 @@ export const updateEvent = async (id: string, notes: string) => {
 export interface EventsWithNextSteps extends EventsResponse {
   pending: NextstepsResponse[]
 }
-export const getEvents = async () => {
+export const getEvents = async (search?: string | null) => {
   if (!pb.authStore.model) return []
+
+  const filter = `authorId='${pb.authStore.model.id}' || sharedWith ~ '${pb.authStore.model.id}'`
+  const filterWithSearch = `(title~'${search}' || notes~'${search}') && (${filter})`
 
   const events = await pb.collection(Collections.Events)
     .getFullList<EventsResponse>({
-      filter: `authorId='${pb.authStore.model.id}' || sharedWith ~ '${pb.authStore.model.id}'`,
+      filter: search ? filterWithSearch : filter,
       sort: '-created',
       expand: 'authorId',
     })
