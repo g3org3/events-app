@@ -1,10 +1,11 @@
-import { Flex, Button, Textarea, Spacer, Skeleton } from '@chakra-ui/react'
+import { Flex, Button, Textarea, Spacer, Skeleton, useDisclosure } from '@chakra-ui/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
+import GenericModal from './GenericModal'
 import { eventRoute } from './Router'
-import { getEvent, getNextSteps, pb, updateEvent } from './pb'
+import { createComment, getComments, getEvent, getNextSteps, pb, updateEvent } from './pb'
 import Empty from './Empty'
 import { queryClient } from './queryClient'
 
@@ -63,8 +64,33 @@ export default function SelectedEvent() {
     </Flex>
     {!event && <Flex flex="1" />}
     {event && state == null && !event.notes && <Empty message="No notes yet." action={<Button onClick={() => setState(event.notes)}>Edit</Button>} />}
-    {event && state == null && !!event.notes && <pre style={{ overflow: 'auto', flex: '1', padding: '8px', border: '1px solid #ccc', background: 'white' }}>{event.notes}</pre>}
-    {event && state != null && <Textarea disabled={isPending} onChange={(e) => setState(e.target.value)} value={state} placeholder="type here some notes..." bg="white" flex="1" />}
+    {event && state == null && !!event.notes && (
+      <>
+        <pre
+          style={{
+            overflow: 'auto',
+            flex: '1',
+            padding: '8px',
+            border: '1px solid #ccc',
+            background: 'white'
+          }}>
+          {event.notes}
+        </pre>
+        <Comments />
+      </>
+    )}
+    {event && state != null && (
+      <>
+        <Textarea
+          disabled={isPending}
+          onChange={(e) => setState(e.target.value)}
+          value={state}
+          placeholder="type here some notes..."
+          bg="white"
+          flex="1"
+        />
+      </>
+    )}
     <Flex bg="white" justifyContent="space-around" p="2" border="1px solid" borderColor="gray.300">
       <Link to="/event/$id/doubts" params={{ id: selectedEventId }}>
         <Button variant="ghost">Doubts</Button>
@@ -77,4 +103,43 @@ export default function SelectedEvent() {
       </Link>
     </Flex>
   </Flex>
+}
+
+function Comments () {
+  const { id: selectedEventId } = eventRoute.useParams()
+  const { data } = useQuery({
+    queryKey: ['comments', `event-id-${selectedEventId}`],
+    queryFn: () => getComments(selectedEventId)
+  })
+
+  return <Flex flexDir="column" flexShrink="0">
+    <AddCommentModal />
+    {data?.map(comment => 
+      <Flex flexShrink="0">{comment.text}</Flex>)
+    }
+  </Flex>
+}
+
+function AddCommentModal() {
+  const { id: selectedEventId } = eventRoute.useParams()
+  const { isOpen, onClose, onOpen } = useDisclosure()
+  const { mutate, isPending } = useMutation({
+    mutationFn: createComment,
+    onSuccess: () => onClose()
+  })
+
+  const onAdd = (text: string) => {
+    mutate({ text, eventId: selectedEventId })
+  }
+
+  return (
+    <GenericModal
+      title="Create Comment"
+      onClick={onAdd}
+      isPending={isPending}
+      isOpen={isOpen}
+      onOpen={onOpen}
+      onClose={onClose}
+    />
+  )
 }

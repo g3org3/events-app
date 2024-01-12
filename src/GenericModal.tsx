@@ -16,7 +16,7 @@ interface Props {
   onClick?: (value: string) => void
   isPending?: boolean
   type?: React.HTMLInputTypeAttribute
-  children: React.ReactNode
+  children?: React.ReactNode
   isOpen?: boolean
   onClose: () => void
   onOpen: () => void

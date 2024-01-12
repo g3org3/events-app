@@ -1,5 +1,5 @@
 import PocketBase from 'pocketbase'
-import { Collections, EventsRecord, EventsResponse, NextstepsRecord, NextstepsResponse } from './pocket-types';
+import { Collections, CommentsRecord, CommentsResponse, EventsRecord, EventsResponse, NextstepsRecord, NextstepsResponse } from './pocket-types';
 
 export const pb = new PocketBase('https://pb.jorgeadolfo.com')
 pb.autoCancellation(false);
@@ -8,6 +8,15 @@ export const createEvent = async (ev: EventsRecord) => {
   if (!pb.authStore.model) return
   const res = await pb.collection(Collections.Events)
     .create<EventsResponse>({ ...ev, authorId: pb.authStore.model.id })
+
+  return res
+}
+
+export const createComment = async (comment: CommentsRecord) => {
+  if (!pb.authStore.model) return
+  
+  const res = await pb.collection(Collections.Comments)
+    .create<CommentsRecord>({ ...comment, authorId: pb.authStore.model.id })
 
   return res
 }
@@ -116,4 +125,15 @@ export const getNextSteps = async (eventId: string, type: 'doubt' | 'nextstep') 
     .getFullList<NextstepsResponse>({ filter, sort: '-created' })
 
   return events
+}
+
+export const getComments = async (eventId: string) => {
+  if (!pb.authStore.model) return []
+  
+  const filter = `authorId='${pb.authStore.model.id}' && eventId='${eventId}'`
+
+  const comments = await pb.collection(Collections.Comments)
+    .getFullList<CommentsResponse>({ filter, sort: '-created' })
+
+  return comments
 }

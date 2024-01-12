@@ -6,11 +6,11 @@ import type PocketBase from 'pocketbase'
 import type { RecordService } from 'pocketbase'
 
 export enum Collections {
+	Comments = "comments",
 	Events = "events",
 	LatestSnapshotView = "latest_snapshot_view",
 	Links = "links",
 	Nextsteps = "nextsteps",
-	Notes = "notes",
 	Pubtokens = "pubtokens",
 	SnapshotBatches = "snapshot_batches",
 	SnapshotLatestBatches = "snapshot_latest_batches",
@@ -51,6 +51,12 @@ export type AuthSystemFields<T = never> = {
 
 // Record types for each collection
 
+export type CommentsRecord = {
+	authorId?: RecordIdString
+	eventId?: RecordIdString
+	text?: string
+}
+
 export type EventsRecord = {
 	authorId?: RecordIdString
 	notes?: string
@@ -83,12 +89,6 @@ export type NextstepsRecord = {
 	remindAt?: IsoDateString
 	title?: string
 	type?: NextstepsTypeOptions
-}
-
-export type NotesRecord = {
-	attendees?: string
-	author?: RecordIdString
-	tags?: string
 }
 
 export type PubtokensRecord = {
@@ -200,11 +200,11 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
+export type CommentsResponse<Texpand = unknown> = Required<CommentsRecord> & BaseSystemFields<Texpand>
 export type EventsResponse<Texpand = unknown> = Required<EventsRecord> & BaseSystemFields<Texpand>
 export type LatestSnapshotViewResponse<Tsprint = unknown, Texpand = unknown> = Required<LatestSnapshotViewRecord<Tsprint>> & BaseSystemFields<Texpand>
 export type LinksResponse<Ttags = unknown, Texpand = unknown> = Required<LinksRecord<Ttags>> & BaseSystemFields<Texpand>
 export type NextstepsResponse<Texpand = unknown> = Required<NextstepsRecord> & BaseSystemFields<Texpand>
-export type NotesResponse<Texpand = unknown> = Required<NotesRecord> & BaseSystemFields<Texpand>
 export type PubtokensResponse<Texpand = unknown> = Required<PubtokensRecord> & BaseSystemFields<Texpand>
 export type SnapshotBatchesResponse<Texpand = unknown> = Required<SnapshotBatchesRecord> & BaseSystemFields<Texpand>
 export type SnapshotLatestBatchesResponse<Tdate = unknown, Tlatest_at = unknown, Texpand = unknown> = Required<SnapshotLatestBatchesRecord<Tdate, Tlatest_at>> & BaseSystemFields<Texpand>
@@ -223,11 +223,11 @@ export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSyste
 // Types containing all Records and Responses, useful for creating typing helper functions
 
 export type CollectionRecords = {
+	comments: CommentsRecord
 	events: EventsRecord
 	latest_snapshot_view: LatestSnapshotViewRecord
 	links: LinksRecord
 	nextsteps: NextstepsRecord
-	notes: NotesRecord
 	pubtokens: PubtokensRecord
 	snapshot_batches: SnapshotBatchesRecord
 	snapshot_latest_batches: SnapshotLatestBatchesRecord
@@ -245,11 +245,11 @@ export type CollectionRecords = {
 }
 
 export type CollectionResponses = {
+	comments: CommentsResponse
 	events: EventsResponse
 	latest_snapshot_view: LatestSnapshotViewResponse
 	links: LinksResponse
 	nextsteps: NextstepsResponse
-	notes: NotesResponse
 	pubtokens: PubtokensResponse
 	snapshot_batches: SnapshotBatchesResponse
 	snapshot_latest_batches: SnapshotLatestBatchesResponse
@@ -270,11 +270,11 @@ export type CollectionResponses = {
 // https://github.com/pocketbase/js-sdk#specify-typescript-definitions
 
 export type TypedPocketBase = PocketBase & {
+	collection(idOrName: 'comments'): RecordService<CommentsResponse>
 	collection(idOrName: 'events'): RecordService<EventsResponse>
 	collection(idOrName: 'latest_snapshot_view'): RecordService<LatestSnapshotViewResponse>
 	collection(idOrName: 'links'): RecordService<LinksResponse>
 	collection(idOrName: 'nextsteps'): RecordService<NextstepsResponse>
-	collection(idOrName: 'notes'): RecordService<NotesResponse>
 	collection(idOrName: 'pubtokens'): RecordService<PubtokensResponse>
 	collection(idOrName: 'snapshot_batches'): RecordService<SnapshotBatchesResponse>
 	collection(idOrName: 'snapshot_latest_batches'): RecordService<SnapshotLatestBatchesResponse>
