@@ -110,7 +110,7 @@ export default function EventList() {
         </>
       )}
       {filteredEvents.map(e => (
-        <EventComponent key={e.id} event={e} />
+        <EventComponent filter={filter} key={e.id} event={e} />
       ))}
       <Flex p="4" color="gray.400" justifyContent="center">
         You reached the bottom
@@ -119,7 +119,7 @@ export default function EventList() {
   )
 }
 
-function EventComponent(props: { event: EventsWithNextSteps }) {
+function EventComponent(props: { event: EventsWithNextSteps, filter: 'pending'  | 'reminders' | null }) {
   return (
     <Flex alignItems="center" gap="1" p="1">
       <Flex position="relative" alignItems="center">
@@ -183,9 +183,9 @@ function EventComponent(props: { event: EventsWithNextSteps }) {
           </Flex>
         </Button>
         <Flex bg="white" flexDir="column">
-          {props.event.pending.filter(p => isDateInTheFuture(p.remindAt)).map(p => (
+          {props.event.pending.filter(p => isDateInTheFuture(p.remindAt) || props.filter === 'pending').map(p => (
             <Flex px="4" alignItems="center" gap="2">
-              <Flex><BellIcon color="green.600" /></Flex>
+              <Flex><BellIcon color={isDateInTheFuture(p.remindAt) ? "green.600" : "white"} /></Flex>
               <Flex flex="1">{p.title}</Flex>
               <Flex>{DateTime.fromSQL(p.remindAt).toRelative()}</Flex>
             </Flex>
