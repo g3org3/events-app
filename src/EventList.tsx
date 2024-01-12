@@ -1,4 +1,4 @@
-import { Flex, Button, Skeleton, Text, Spacer, Progress, Input } from '@chakra-ui/react'
+import { Flex, Button, Skeleton, Text, Spacer, Input } from '@chakra-ui/react'
 import { SmallAddIcon, ViewIcon, EmailIcon, BellIcon } from '@chakra-ui/icons'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
