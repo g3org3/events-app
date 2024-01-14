@@ -8,6 +8,7 @@ import { eventRoute } from './Router'
 import { createComment, getComments, getEvent, getNextSteps, pb, updateEvent } from './pb'
 import Empty from './Empty'
 import { queryClient } from './queryClient'
+import { DateTime } from 'luxon'
 
 export default function SelectedEvent() {
   const { id: selectedEventId } = eventRoute.useParams()
@@ -82,6 +83,7 @@ export default function SelectedEvent() {
     {event && state != null && (
       <>
         <Textarea
+          minHeight="500px"
           disabled={isPending}
           onChange={(e) => setState(e.target.value)}
           value={state}
@@ -105,17 +107,35 @@ export default function SelectedEvent() {
   </Flex>
 }
 
-function Comments () {
+function Comments() {
   const { id: selectedEventId } = eventRoute.useParams()
   const { data } = useQuery({
     queryKey: ['comments', `event-id-${selectedEventId}`],
     queryFn: () => getComments(selectedEventId)
   })
 
-  return <Flex flexDir="column" flexShrink="0">
+  useEffect(() => {
+    pb.collection('comments').subscribe('*', function(e) {
+      console.log(e)
+      if (e.record.eventId === selectedEventId)
+        queryClient.invalidateQueries({ queryKey: [] })
+    })
+
+    return () => {
+      pb.collection('comments').unsubscribe('*')
+    }
+  }, [])
+
+  return <Flex flexDir="column" flexShrink="0" gap="3">
     <AddCommentModal />
-    {data?.map(comment => 
-      <Flex flexShrink="0">{comment.text}</Flex>)
+    {data?.map(comment =>
+      <Flex bg="white" flexShrink="0" p="2" border="1px solid">
+        {comment.text}
+        <Flex flex="1" />
+        <Flex title={comment.created}>
+          {DateTime.fromSQL(comment.created).toRelative()}
+        </Flex>
+      </Flex>)
     }
   </Flex>
 }
@@ -125,7 +145,10 @@ function AddCommentModal() {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const { mutate, isPending } = useMutation({
     mutationFn: createComment,
-    onSuccess: () => onClose()
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', `event-id-${selectedEventId}`] })
+      onClose()
+    }
   })
 
   const onAdd = (text: string) => {
