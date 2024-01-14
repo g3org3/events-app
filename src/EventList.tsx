@@ -1,4 +1,4 @@
-import { Flex, Button, Skeleton, Text, Spacer, Input } from '@chakra-ui/react'
+import { Flex, Button, Skeleton, Text, Spacer, Input, Select } from '@chakra-ui/react'
 import { SmallAddIcon, ViewIcon, EmailIcon, BellIcon } from '@chakra-ui/icons'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
@@ -38,7 +38,7 @@ function SearchEventInput() {
 }
 
 export default function EventList() {
-  const [filter, setFilter] = useState<null | 'pending' | 'reminders'>(null)
+  const [filter, setFilter] = useState<'all' | 'pending' | 'reminders'>('all')
   const search = useSearch({
     from: indexRoute.fullPath,
   })
@@ -94,12 +94,11 @@ export default function EventList() {
       {/*   </Flex> */}
       {/* )} */}
       <Flex gap="2" justifyContent="space-around">
-        <Button variant="outline" onClick={() => setFilter(filter === 'pending' ? null : 'pending')}>
-          {filter === 'pending' ? 'show all' : 'sw pndng'}
-        </Button>
-        <Button variant="outline" onClick={() => setFilter(filter === 'reminders' ? null : 'reminders')}>
-          {filter === 'reminders' ? 'show all' : 'sw rmndrs'}
-        </Button>
+        <Select value={filter} onChange={(e) => setFilter(e.target.value as 'all' | 'pending' | 'reminders')}>
+          <option>pending</option>
+          <option>reminders</option>
+          <option>all</option>
+        </Select>
         <SearchEventInput />
         <CreateEventModal />
       </Flex>
@@ -119,7 +118,7 @@ export default function EventList() {
   )
 }
 
-function EventComponent(props: { event: EventsWithNextSteps, filter: 'pending'  | 'reminders' | null }) {
+function EventComponent(props: { event: EventsWithNextSteps, filter: 'pending' | 'reminders' | 'all' }) {
   return (
     <Flex alignItems="center" gap="1" p="1">
       <Flex position="relative" alignItems="center">

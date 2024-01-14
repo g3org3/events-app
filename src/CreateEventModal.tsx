@@ -31,7 +31,7 @@ export default function CreateEventModal() {
 
   return (
     <>
-      <Button flexShrink="0" colorScheme="purple" size="md" variant="outline" onClick={onOpen}>create event</Button>
+      <Button flexShrink="0" colorScheme="purple" size="md" variant="outline" onClick={onOpen}>create</Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent m={3}>
