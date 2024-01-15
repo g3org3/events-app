@@ -129,7 +129,7 @@ function Comments() {
   return <Flex flexDir="column" flexShrink="0" gap="3">
     <AddCommentModal />
     {data?.map(comment =>
-      <Flex bg="white" flexShrink="0" p="2" border="1px solid">
+      <Flex key={comment.id} bg="white" flexShrink="0" p="2" border="1px solid">
         {comment.text}
         <Flex flex="1" />
         <Flex title={comment.created}>

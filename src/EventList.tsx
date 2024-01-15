@@ -183,7 +183,7 @@ function EventComponent(props: { event: EventsWithNextSteps, filter: 'pending' |
         </Button>
         <Flex bg="white" flexDir="column">
           {props.event.pending.filter(p => isDateInTheFuture(p.remindAt) || props.filter === 'pending').map(p => (
-            <Flex px="4" alignItems="center" gap="2">
+            <Flex key={p.id} px="4" alignItems="center" gap="2">
               <Flex><BellIcon color={isDateInTheFuture(p.remindAt) ? "green.600" : "white"} /></Flex>
               <Flex flex="1">{p.title}</Flex>
               <Flex>{DateTime.fromSQL(p.remindAt).toRelative()}</Flex>
