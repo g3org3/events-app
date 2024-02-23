@@ -10,6 +10,7 @@ import EventList from './EventList'
 import SelectedEvent from './SelectedEvent'
 import NextSteps from './NextSteps'
 import Doubts from './Doubts'
+import Objectives from './Objetives'
 
 const rootRoute = new RootRoute({
   component: () => (
@@ -36,6 +37,13 @@ export const eventRoute = new Route({
   component: SelectedEvent,
 })
 
+export const objectivesRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: '/tasks',
+  component: Objectives,
+  validateSearch: indexRouteSearchSchema,
+})
+
 export const nextStepsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: '/event/$id/next-steps',
@@ -53,6 +61,7 @@ const routeTree = rootRoute.addChildren([
   eventRoute,
   nextStepsRoute,
   doubtsRoute,
+  objectivesRoute,
 ])
 export const router = new Router({ routeTree })
 
