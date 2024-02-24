@@ -13,12 +13,11 @@ import { queryClient } from './queryClient'
 import { EventsResponse } from './pocket-types'
 import { isDateInTheFuture } from './utils/date'
 import { useDebounce } from './debounce.hook'
-import { indexRoute } from './Router'
 
 function SearchEventInput() {
   const [state, setState] = useState('')
   const debouncedValue = useDebounce(state, 400)
-  const navigate = useNavigate({ from: indexRoute.fullPath })
+  const navigate = useNavigate({ from: '/' })
 
   useEffect(() => {
     navigate({
@@ -39,9 +38,7 @@ function SearchEventInput() {
 
 export default function EventList() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'reminders'>('all')
-  const search = useSearch({
-    from: indexRoute.fullPath,
-  })
+  const search = useSearch({ from: '/' })
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events', search.query],
     queryFn: () => getEvents(search.query),

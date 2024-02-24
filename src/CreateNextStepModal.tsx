@@ -11,13 +11,14 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useMutation } from '@tanstack/react-query'
+import { useParams } from '@tanstack/react-router'
 import { useState } from "react"
+
 import { createNextStep } from './pb'
 import { queryClient } from './queryClient'
-import { eventRoute } from './Router'
 
 export default function CreateNextStepModal() {
-  const { id: selectedEventId } = eventRoute.useParams()
+  const { id: selectedEventId } = useParams({ from: '/event/$id/next-steps' })
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [title, setTitle] = useState('')
 
@@ -32,7 +33,7 @@ export default function CreateNextStepModal() {
 
   return (
     <>
-      <Button colorScheme="purple" size="md" variant="outline" onClick={onOpen}>
+      <Button flexShrink="0" colorScheme="purple" size="md" variant="outline" onClick={onOpen}>
         Add a next step
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>

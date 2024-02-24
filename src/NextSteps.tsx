@@ -1,21 +1,20 @@
 import { Flex, Checkbox, Spacer, Button, useDisclosure } from '@chakra-ui/react'
 import { BellIcon } from '@chakra-ui/icons'
-import { Link } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
 import { useEffect } from 'react'
 
 import Empty from './Empty'
 import CreateNextStepModal from './CreateNextStepModal'
-import { eventRoute } from './Router'
 import { getNextSteps, pb, updateNextStep, updateReminder } from './pb'
 import { queryClient } from './queryClient'
 import GenericModal from './GenericModal'
 import { isDateInTheFuture } from './utils/date'
+import { useParams } from '@tanstack/react-router'
 
 
 export default function NextSteps() {
-  const { id: selectedEventId } = eventRoute.useParams()
+  const { id: selectedEventId } = useParams({ from: '/event/$id/next-steps' })
   const { data: nextSteps = [], isLoading } = useQuery({
     queryKey: ['get-next-steps', `event-id-${selectedEventId}`],
     queryFn: () => getNextSteps(selectedEventId, 'nextstep')
@@ -38,7 +37,7 @@ export default function NextSteps() {
     }
   }, [])
 
-  return <Flex flexDir="column" flex="1" gap="2" p="4">
+  return <>
     <Flex borderBottom="1px solid" borderColor="gray.400" py="2" fontSize="x-large">
       <Flex>Next Steps</Flex>
       <Spacer />
@@ -74,18 +73,7 @@ export default function NextSteps() {
       ))}
       {nextSteps.length === 0 && <Empty isLoading={isLoading} message="You don't have any next steps." action={selectedEventId && <CreateNextStepModal />} />}
     </Flex>
-    <Flex bg="white" justifyContent="space-around" p="2" border="1px solid" borderColor="gray.300">
-      <Link to="/event/$id/doubts" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Doubts</Button>
-      </Link>
-      <Link to="/event/$id" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Notes</Button>
-      </Link>
-      <Link to="/event/$id/next-steps" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Next Steps</Button>
-      </Link>
-    </Flex>
-  </Flex>
+  </>
 }
 
 function ReminderModal(props: { nsId: string, remindAt?: string }) {

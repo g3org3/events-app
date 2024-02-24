@@ -21,8 +21,11 @@ dependencies:
     specifier: ^5.13.4
     version: 5.13.4(react@18.2.0)
   '@tanstack/react-router':
-    specifier: 0.0.1-beta.271
-    version: 0.0.1-beta.271(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^1.16.6
+    version: 1.16.6(react-dom@18.2.0)(react@18.2.0)
+  '@tanstack/router-devtools':
+    specifier: ^1.16.6
+    version: 1.16.6(react-dom@18.2.0)(react@18.2.0)
   '@types/luxon':
     specifier: ^3.3.7
     version: 3.3.7
@@ -55,6 +58,9 @@ dependencies:
     version: 4.4.7(@types/react@18.2.45)(react@18.2.0)
 
 devDependencies:
+  '@tanstack/router-vite-plugin':
+    specifier: ^1.16.5
+    version: 1.16.5
   '@types/react':
     specifier: ^18.2.43
     version: 18.2.45
@@ -1868,8 +1874,8 @@ packages:
     resolution: {integrity: sha512-myfUej5naTBWnqOCc/MdVOLVjXUXtIA+NpDrDBKJtLLg2shUjBu3cZmB/85RyitKc55+lUUyl7oRfLOvkr2hsw==}
     dev: true
 
-  /@tanstack/history@0.0.1-beta.271:
-    resolution: {integrity: sha512-qDIOssxUpDzFOc4Gk59ovzFPOrbPHCVKNBSdKya5fFBtPGrYRPjT9zcJyvxzpBd/Wj7fBni5KamXC6HjN7z3EA==}
+  /@tanstack/history@1.15.13:
+    resolution: {integrity: sha512-ToaeMtK5S4YaxCywAlYexc7KPFN0esjyTZ4vXzJhXEWAkro9iHgh7m/4ozPJb7oTo65WkHWX0W9GjcZbInSD8w==}
     engines: {node: '>=12'}
     dev: false
 
@@ -1886,17 +1892,15 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@tanstack/react-router@0.0.1-beta.271(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-RK20isLK7fhE9kui/1Ykw8YwzrPSeDF8HPqaKo0jYiqEncCS9juC9rhlQ47/pCn7iyRHnGSa8xhkg0ejbQzY7Q==}
+  /@tanstack/react-router@1.16.6(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-d1Kjs38IF3bH7jKwihMBrdnh7BMVOHSNhJ9sltCiP4gLHcZkG7V9BwwJn5yL4V7YHIPNxdrJ3v4yrkvdrPJ0Ww==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
     dependencies:
-      '@babel/runtime': 7.23.6
-      '@tanstack/history': 0.0.1-beta.271
+      '@tanstack/history': 1.15.13
       '@tanstack/react-store': 0.2.1(react-dom@18.2.0)(react@18.2.0)
-      '@tanstack/store': 0.1.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       tiny-invariant: 1.3.1
@@ -1914,6 +1918,34 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
+
+  /@tanstack/router-devtools@1.16.6(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-zjyLuStYA1TM4L1IfgQJ1ZCq36o3UVaLLCVmBBHukxbc6n2cKR2U11BXJW5RpkNZDyAPyGcPLEgJ2qcZCYSDcQ==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/react-router': 1.16.6(react-dom@18.2.0)(react@18.2.0)
+      date-fns: 2.30.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/router-generator@1.16.5:
+    resolution: {integrity: sha512-np9+DASQvD4ff+FrCZ4XqRMGpVC6Y2213kma/X05mvo241yh0D5C6paUY7N7pSBPpuTlJbYKi+73cm/xRtK3Hg==}
+    engines: {node: '>=12'}
+    dependencies:
+      prettier: 3.2.5
+      zod: 3.22.4
+    dev: true
+
+  /@tanstack/router-vite-plugin@1.16.5:
+    resolution: {integrity: sha512-rNfAuWIScl0KnjWOda5hzQYgHdwpLu1OljvqZa260UrCB6e32882X2Ci687+OUBfydhZT/V53XtQ+la7/AO5Rw==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@tanstack/router-generator': 1.16.5
+    dev: true
 
   /@tanstack/store@0.1.3:
     resolution: {integrity: sha512-GnolmC8Fr4mvsHE1fGQmR3Nm0eBO3KnZjDU0a+P3TeQNM/dDscFGxtA7p31NplQNW3KwBw4t1RVFmz0VeKLxcw==}
@@ -2305,6 +2337,13 @@ packages:
 
   /csstype@3.1.3:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+
+  /date-fns@2.30.0:
+    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
+    engines: {node: '>=0.11'}
+    dependencies:
+      '@babel/runtime': 7.23.6
+    dev: false
 
   /debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
@@ -2971,6 +3010,12 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: true
 
+  /prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: true
+
   /prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
     dependencies:
@@ -3401,7 +3446,6 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
-    dev: false
 
   /zustand@4.4.7(@types/react@18.2.45)(react@18.2.0):
     resolution: {integrity: sha512-QFJWJMdlETcI69paJwhSMJz7PPWjVP8Sjhclxmxmxv/RYI7ZOvR5BHX+ktH0we9gTWQMxcne8q1OY8xxz604gw==}

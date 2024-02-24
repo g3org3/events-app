@@ -1,16 +1,16 @@
-import { Flex, Button, Spacer, Checkbox } from '@chakra-ui/react'
-import { Link } from '@tanstack/react-router'
+import { Flex, Spacer, Checkbox } from '@chakra-ui/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
+import { useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
+import { useEffect } from 'react'
+
 import Empty from './Empty'
 import CreateDoubtModal from './CreateDoubtModal'
 import { getNextSteps, pb, updateNextStep } from './pb'
-import { eventRoute } from './Router'
 import { queryClient } from './queryClient'
-import { useEffect } from 'react'
 
 export default function Doubts() {
-  const { id: selectedEventId } = eventRoute.useParams()
+  const { id: selectedEventId } = useParams({ from: '/event/$id/doubts' })
   const { data: doubts = [], isLoading } = useQuery({
     queryKey: ['get-doubts', `event-id-${selectedEventId}`],
     queryFn: () => getNextSteps(selectedEventId, 'doubt')
@@ -33,7 +33,7 @@ export default function Doubts() {
     }
   }, [])
 
-  return <Flex flexDir="column" flex="1" gap="2" p="4">
+  return <>
     <Flex borderBottom="1px solid" borderColor="gray.400" py="2" fontSize="x-large">
       <Flex>Doubts</Flex>
       <Spacer />
@@ -64,16 +64,5 @@ export default function Doubts() {
       ))}
       {doubts.length === 0 && <Empty isLoading={isLoading} message="You don't have any doubts." action={selectedEventId && <CreateDoubtModal />} />}
     </Flex>
-    <Flex bg="white" justifyContent="space-around" p="2" border="1px solid" borderColor="gray.300">
-      <Link to="/event/$id/doubts" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Doubts</Button>
-      </Link>
-      <Link to="/event/$id" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Notes</Button>
-      </Link>
-      <Link to="/event/$id/next-steps" params={{ id: selectedEventId }}>
-        <Button variant="ghost">Next Steps</Button>
-      </Link>
-    </Flex>
-  </Flex>
+  </>
 }

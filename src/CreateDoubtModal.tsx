@@ -11,13 +11,14 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useMutation } from '@tanstack/react-query'
+import { useParams } from '@tanstack/react-router'
 import { useState } from "react"
+
 import { createNextStep } from './pb'
 import { queryClient } from './queryClient'
-import { eventRoute } from './Router'
 
 export default function CreateDoubtModal() {
-  const { id: selectedEventId } = eventRoute.useParams()
+  const { id: selectedEventId } = useParams({ from: '/event/$id/doubts' })
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [title, setTitle] = useState('')
 

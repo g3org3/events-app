@@ -1,39 +1,28 @@
-import { Button, Flex, Input, Skeleton } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { Button, Flex } from '@chakra-ui/react'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState } from 'react'
 
-import { getEvents } from './pb'
-import { useEffect, useState } from 'react'
-import { objectivesRoute } from './Router'
-import { useDebounce } from './debounce.hook'
+import { getEvents } from '../pb'
+import { queryClient } from '../queryClient'
 
-function SearchEventInput() {
-  const [state, setState] = useState('')
-  const debouncedValue = useDebounce(state, 400)
-  const navigate = useNavigate({ from: objectivesRoute.fullPath })
-
-  useEffect(() => {
-    navigate({
-      search: {
-        query: debouncedValue
-      }
-    })
-  }, [debouncedValue])
-
-  return (
-    <Input
-      placeholder="search"
-      value={state}
-      onChange={(e) => setState(e.target.value)}
-    />
+export const Route = createFileRoute('/_layouta/tasks')({
+  loaderDeps: ({ search: { query } }) => ({ query }),
+  loader: ({ deps: { query } }) => queryClient.ensureQueryData(queryOptions({
+    queryKey: ['events', query],
+    queryFn: () => getEvents(query),
+  })),
+  component: Tasks,
+  pendingComponent: () => (
+    <>
+      <h1>loading!!!!!!</h1>
+    </>
   )
-}
+})
 
-export default function Objectives() {
-  const search = useSearch({
-    from: objectivesRoute.fullPath,
-  })
-  const { data: events = [], isLoading } = useQuery({
+export default function Tasks() {
+  const search = Route.useSearch()
+  const { data: events = [] } = useQuery({
     queryKey: ['events', search.query],
     queryFn: () => getEvents(search.query),
   })
@@ -47,12 +36,7 @@ export default function Objectives() {
   const addE = (id: string) => setIgnoreE((old) => old.concat([id]))
 
   return (
-    <Flex bg="white" m="5" p="5" shadow="lg" gap="4" flexDir="column">
-      <SearchEventInput />
-      {isLoading && <>
-        <Skeleton height="54px" rounded="md" />
-        <Skeleton height="54px" rounded="md" />
-      </>}
+    <>
       {filteredEvents.map(event => (
         <Flex flexDir="column">
           <Flex p="2" border="1px solid black">
@@ -71,6 +55,6 @@ export default function Objectives() {
           </Flex>
         </Flex>
       ))}
-    </Flex>
+    </>
   )
 }
