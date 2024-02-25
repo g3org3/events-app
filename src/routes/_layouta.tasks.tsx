@@ -7,6 +7,7 @@ import { getEvents } from '../pb'
 import { queryClient } from '../queryClient'
 
 export const Route = createFileRoute('/_layouta/tasks')({
+  staleTime: 10 * 60 * 1000, // 10 min
   loaderDeps: ({ search: { query } }) => ({ query }),
   loader: ({ deps: { query } }) => queryClient.ensureQueryData(queryOptions({
     queryKey: ['events', query],

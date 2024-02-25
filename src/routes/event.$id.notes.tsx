@@ -10,6 +10,7 @@ import { queryClient } from '../queryClient'
 
 
 export const Route = createFileRoute('/event/$id/notes')({
+  staleTime: 10 * 60 * 1000, // 10 min
   loader: ({ params }) => queryClient.ensureQueryData(queryOptions({
     queryKey: ['get-event', params.id],
     queryFn: () => getEvent(params.id),

@@ -21,7 +21,7 @@ const indexRouteSearchSchema = z.object({
 
 export const Route = createFileRoute('/_layout/')({
   validateSearch: indexRouteSearchSchema,
-  staleTime: 10 * 60 * 1000, // 1 min
+  staleTime: 10 * 60 * 1000, // 10 min
   loaderDeps: ({ search: { query } }) => ({ query: query || '' }),
   loader: ({ deps: { query } }) => queryClient.ensureQueryData(queryOptions({
     queryKey: ['events', query],
