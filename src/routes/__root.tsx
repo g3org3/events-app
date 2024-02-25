@@ -1,7 +1,5 @@
 import { createRootRoute, Outlet, useChildMatches } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import Login from '../Login'
-import { pb } from '../pb'
 import {
   Button,
   Flex,
@@ -9,6 +7,10 @@ import {
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 
+import Login from '../Login'
+import { pb } from '../pb'
+
+const isDev = import.meta.env.DEV
 
 export const Route = createRootRoute({
   component: () => {
@@ -19,7 +21,7 @@ export const Route = createRootRoute({
         <Layout>
           <Outlet />
         </Layout>
-        <TanStackRouterDevtools />
+        {isDev && <TanStackRouterDevtools />}
       </>
     )
   },

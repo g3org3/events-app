@@ -15,6 +15,7 @@ function LayoutComponent() {
   const navigate = useNavigate({ from: '/' })
   const { search } = useMatch({ strict: false })
   const filter = ('filter' in search) ? search.filter || 'all' : 'all'
+  const query = ('query' in search) ? search.query || '' : ''
 
   const onChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     const value = schema.parse(e.target.value)
@@ -34,7 +35,7 @@ function LayoutComponent() {
           <option>reminders</option>
           <option>all</option>
         </Select>
-        <SearchEventInput />
+        <SearchEventInput query={query} />
         <CreateEventModal />
       </Flex>
       <Outlet />

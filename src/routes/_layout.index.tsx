@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { createFileRoute } from '@tanstack/react-router'
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import z from 'zod'
 
@@ -21,7 +21,8 @@ const indexRouteSearchSchema = z.object({
 
 export const Route = createFileRoute('/_layout/')({
   validateSearch: indexRouteSearchSchema,
-  loaderDeps: ({ search: { query } }) => ({ query }),
+  staleTime: 10 * 60 * 1000, // 1 min
+  loaderDeps: ({ search: { query } }) => ({ query: query || '' }),
   loader: ({ deps: { query } }) => queryClient.ensureQueryData(queryOptions({
     queryKey: ['events', query],
     queryFn: () => getEvents(query),
@@ -39,7 +40,7 @@ export const Route = createFileRoute('/_layout/')({
 export default function EventList() {
   const search = Route.useSearch()
   const filter = search.filter || 'all'
-  const { data: events = [] } = useQuery({
+  const { data: events } = useSuspenseQuery({
     queryKey: ['events', search.query],
     queryFn: () => getEvents(search.query),
   })
@@ -73,7 +74,7 @@ export default function EventList() {
     }
   }, [])
 
-  if (!search.query && filteredEvents.length === 0) {
+  if (filter === 'all' && !search.query && filteredEvents.length === 0) {
     return <Empty
       message="You don't have any events."
       action={<CreateEventModal />}
