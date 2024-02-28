@@ -40,9 +40,10 @@ export const Route = createFileRoute('/_layout/')({
 export default function EventList() {
   const search = Route.useSearch()
   const filter = search.filter || 'all'
+  const query = search.query || ''
   const { data: events } = useSuspenseQuery({
-    queryKey: ['events', search.query],
-    queryFn: () => getEvents(search.query),
+    queryKey: ['events', query],
+    queryFn: () => getEvents(query),
   })
   
   let filteredEvents = events
