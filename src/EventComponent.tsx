@@ -1,4 +1,4 @@
-import { Flex, Button, Text, Spacer } from '@chakra-ui/react'
+import { Flex, Button, Text, Spacer, useColorModeValue } from '@chakra-ui/react'
 import { SmallAddIcon, ViewIcon, EmailIcon, BellIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
@@ -18,7 +18,7 @@ export default function EventComponent(props: Props) {
         {props.event.authorId === pb.authStore.model?.id ? <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
           : <EmailIcon color="purple.700" />}
         <Flex
-          borderColor="gray.400"
+          borderColor={useColorModeValue("gray.400", 'black.600')}
           borderLeft="1px dashed"
           bottom="-47px"
           height="40px"
@@ -30,7 +30,7 @@ export default function EventComponent(props: Props) {
       <Link style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }} to="/event/$id/notes" params={{ id: props.event.id }}>
         <Button
           alignItems="center"
-          bg="white"
+          bg={useColorModeValue("white", 'black.600')}
           boxShadow="md"
           border="1px solid"
           borderColor={props.event.authorId !== pb.authStore.model?.id ? 'purple.500' : 'gray.300'}
@@ -74,7 +74,7 @@ export default function EventComponent(props: Props) {
             <Flex color="gray.400" fontSize="small">{DateTime.fromSQL(props.event.created).toRelative()}</Flex>
           </Flex>
         </Button>
-        <Flex bg="white" flexDir="column">
+        <Flex bg={useColorModeValue('white', 'gray.700')} flexDir="column">
           {props.event.pending.filter(p => isDateInTheFuture(p.remindAt) || props.filter === 'pending').map(p => (
             <Flex key={p.id} px="4" alignItems="center" gap="2">
               <Flex><BellIcon color={isDateInTheFuture(p.remindAt) ? "green.600" : "white"} /></Flex>

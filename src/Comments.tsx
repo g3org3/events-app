@@ -1,4 +1,4 @@
-import { Flex, useDisclosure } from '@chakra-ui/react'
+import { Flex, useColorModeValue, useDisclosure } from '@chakra-ui/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
@@ -15,6 +15,7 @@ export default function Comments() {
     queryKey: ['comments', `event-id-${selectedEventId}`],
     queryFn: () => getComments(selectedEventId)
   })
+  const bg = useColorModeValue('white', 'black')
 
   useEffect(() => {
     pb.collection('comments').subscribe('*', function(e) {
@@ -31,7 +32,7 @@ export default function Comments() {
   return <Flex flexDir="column" flexShrink="0" gap="3">
     <AddCommentModal />
     {data?.map(comment =>
-      <Flex key={comment.id} bg="white" flexShrink="0" p="2" border="1px solid">
+      <Flex key={comment.id} bg={bg} flexShrink="0" p="2" border="1px solid">
         {comment.text}
         <Flex flex="1" />
         <Flex title={comment.created}>

@@ -12,8 +12,11 @@ import { queryClient } from './queryClient'
 import './index.css'
 
 const isDev = import.meta.env.DEV
-const colors = {}
-const theme = extendTheme({ colors })
+const config = {
+  initialColorMode: 'dark',
+  useSystemColorMode: false,
+}
+const theme = extendTheme(config)
 
 const router = createRouter({ routeTree })
 const persister = createSyncStoragePersister({

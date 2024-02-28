@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import {
   Button,
   Flex,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Link } from '@tanstack/react-router'
@@ -38,8 +39,8 @@ function Layout(props: { children: React.ReactNode }) {
   }
 
   return (
-    <Flex background="gray.50" h="100dvh" flexDir="column">
-      <Flex zIndex="1" bg="white" py="2" px="4" boxShadow="md" alignItems="center" gap="4" justifyContent="space-between">
+    <Flex background={useColorModeValue('gray.50', 'black.500')} h="100dvh" flexDir="column">
+      <Flex zIndex="1" bg={useColorModeValue('white', 'black')} py="2" px="4" boxShadow="md" alignItems="center" gap="4" justifyContent="space-between">
         {isNotHome && (
           <Flex fontWeight="bold">
             <Link to="/">

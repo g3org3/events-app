@@ -1,4 +1,4 @@
-import { Flex, Spacer, Checkbox } from '@chakra-ui/react'
+import { Flex, Spacer, Checkbox, useColorModeValue } from '@chakra-ui/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useParams } from '@tanstack/react-router'
 import { DateTime } from 'luxon'
@@ -11,6 +11,7 @@ import { queryClient } from './queryClient'
 
 export default function Doubts() {
   const { id: selectedEventId } = useParams({ from: '/event/$id/doubts' })
+  const bg = useColorModeValue('white', 'black')
   const { data: doubts = [], isLoading } = useQuery({
     queryKey: ['get-doubts', `event-id-${selectedEventId}`],
     queryFn: () => getNextSteps(selectedEventId, 'doubt')
@@ -47,7 +48,7 @@ export default function Doubts() {
             onChange={(e) => mutate({ nsId: doubt.id, checked: e.target.checked })}
             isChecked={!!doubt.doneAt}
             width="100%"
-            bg="white"
+            bg={bg}
             boxShadow="sm"
             p="2"
             display="flex"

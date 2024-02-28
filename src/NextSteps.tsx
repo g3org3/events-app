@@ -1,4 +1,4 @@
-import { Flex, Checkbox, Spacer, Button, useDisclosure } from '@chakra-ui/react'
+import { Flex, Checkbox, Spacer, Button, useDisclosure, useColorModeValue } from '@chakra-ui/react'
 import { BellIcon } from '@chakra-ui/icons'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { DateTime } from 'luxon'
@@ -15,6 +15,7 @@ import { useParams } from '@tanstack/react-router'
 
 export default function NextSteps() {
   const { id: selectedEventId } = useParams({ from: '/event/$id/next-steps' })
+  const bg = useColorModeValue('white', 'black')
   const { data: nextSteps = [], isLoading } = useQuery({
     queryKey: ['get-next-steps', `event-id-${selectedEventId}`],
     queryFn: () => getNextSteps(selectedEventId, 'nextstep')
@@ -51,7 +52,7 @@ export default function NextSteps() {
             onChange={(e) => mutate({ nsId: ns.id, checked: e.target.checked })}
             isChecked={!!ns.doneAt}
             width="100%"
-            bg="white"
+            bg={bg}
             boxShadow="sm"
             p="2"
             display="flex"

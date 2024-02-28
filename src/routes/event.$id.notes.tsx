@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Flex, Button, Textarea, Spacer, Skeleton } from '@chakra-ui/react'
+import { Flex, Button, Textarea, Spacer, Skeleton, useColorModeValue } from '@chakra-ui/react'
 import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
@@ -22,6 +22,7 @@ function SelectedEvent() {
   const { id: selectedEventId } = Route.useParams()
   // null means we are not in editing mode
   const [state, setState] = useState<string | null>(null)
+  const bg = useColorModeValue('white', 'black')
   
   const { data: event, isLoading } = useQuery({
     queryKey: ['get-event', selectedEventId],
@@ -83,7 +84,7 @@ function SelectedEvent() {
             flex: '1',
             padding: '8px',
             border: '1px solid #ccc',
-            background: 'white'
+            background: bg
           }}>
           {event.notes}
         </pre>
@@ -98,7 +99,7 @@ function SelectedEvent() {
           onChange={(e) => setState(e.target.value)}
           value={state}
           placeholder="type here some notes..."
-          bg="white"
+          bg={bg}
           flex="1"
         />
       </>
