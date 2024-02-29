@@ -13,8 +13,8 @@ import './index.css'
 
 const isDev = import.meta.env.DEV
 const config = {
-  initialColorMode: 'dark',
-  useSystemColorMode: false,
+  initialColorMode: 'system',
+  useSystemColorMode: true,
 }
 const theme = extendTheme(config)
 

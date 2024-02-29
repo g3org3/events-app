@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import {
   Button,
   Flex,
+  useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
@@ -32,6 +33,8 @@ function Layout(props: { children: React.ReactNode }) {
   const matches = useChildMatches()
   const routeIds = matches.map(m => m.routeId)
   const isNotHome = !routeIds.includes("/_layout")
+  const { colorMode, toggleColorMode } = useColorMode()
+
 
   const onLogout = () => {
     pb.authStore.clear()
@@ -39,8 +42,9 @@ function Layout(props: { children: React.ReactNode }) {
   }
 
   return (
-    <Flex background={useColorModeValue('gray.50', 'black.500')} h="100dvh" flexDir="column">
-      <Flex zIndex="1" bg={useColorModeValue('white', 'black')} py="2" px="4" boxShadow="md" alignItems="center" gap="4" justifyContent="space-between">
+    <Flex background={useColorModeValue('gray.50', 'gray.900')} h="100dvh" flexDir="column">
+
+      <Flex zIndex="1" bg={useColorModeValue('white', 'gray.800')} py="2" px="4" boxShadow="md" alignItems="center" gap="4" justifyContent="space-between">
         {isNotHome && (
           <Flex fontWeight="bold">
             <Link to="/">
@@ -52,7 +56,12 @@ function Layout(props: { children: React.ReactNode }) {
         )}
         <Flex fontSize="x-large">Events</Flex>
         {!isNotHome && <Link to="/tasks">tasks</Link>}
-        <Button onClick={onLogout}>Logout</Button>
+        <Flex gap="1">
+          <Button onClick={toggleColorMode}>
+            {colorMode === 'light' ? 'Dark' : 'Light'}
+          </Button>
+          <Button onClick={onLogout}>Logout</Button>
+        </Flex>
       </Flex>
       <Flex flex="1" flexDir="column" overflow="auto">
         {props.children}

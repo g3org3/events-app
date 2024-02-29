@@ -16,7 +16,7 @@ export default function EventComponent(props: Props) {
     <Flex alignItems="center" gap="1" p="1">
       <Flex position="relative" alignItems="center">
         {props.event.authorId === pb.authStore.model?.id ? <SmallAddIcon border="1px solid" borderColor="gray.600" color="gray.600" rounded="full" />
-          : <EmailIcon color="purple.700" />}
+          : <EmailIcon color="purple.600" />}
         <Flex
           borderColor={useColorModeValue("gray.400", 'black.600')}
           borderLeft="1px dashed"
