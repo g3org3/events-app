@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -30,6 +30,9 @@ export default function Tasks() {
   const [ignoreE, setIgnoreE] = useState<string[]>([])
   const [ignoreNs, setIgnoreNs] = useState<string[]>([])
 
+  const bluebg = useColorModeValue("blue.50", "blue.800")
+  const whitebg = useColorModeValue("white", "gray.800")
+
   let filteredEvents = events.filter(e => !ignoreE.includes(e.id))
   filteredEvents = filteredEvents.filter(e => e.pending.filter(p => !ignoreNs.includes(p.id)).length > 0)
 
@@ -48,7 +51,7 @@ export default function Tasks() {
           </Flex>
           <Flex p="2" flexDir="column">
             {event.pending.filter(p => !ignoreNs.includes(p.id)).map((ns, i) => (
-              <Flex gap="2" p="1" bg={i % 2 === 0 ? "blue.50" : 'white'}>
+              <Flex gap="2" p="1" bg={i % 2 === 0 ? bluebg : whitebg}>
                 <Button size="xs" onClick={() => addNs(ns.id)}>ignore</Button>
                 <Flex flex="1">{ns.title}</Flex>
               </Flex>

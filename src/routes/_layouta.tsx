@@ -1,4 +1,4 @@
-import { Flex, Input } from '@chakra-ui/react'
+import { Flex, Input, useColorModeValue } from '@chakra-ui/react'
 import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import z from 'zod'
@@ -16,8 +16,9 @@ export const Route = createFileRoute('/_layouta')({
 
 
 function TasksLayout() {
+  const bg = useColorModeValue("white", "gray.800")
   return (
-    <Flex bg="white" m="5" p="5" shadow="lg" gap="4" flexDir="column">
+    <Flex bg={bg} m="5" p="5" shadow="lg" gap="4" flexDir="column">
       <SearchEventInput />
       <Outlet />
     </Flex>
