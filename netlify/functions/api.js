@@ -5,10 +5,11 @@ async function handler(event, context) {
   if (event.httpMethod == 'POST') {
     const [id, title] = event.body.split(':')
 
-    fetch(`https://ntfy.sh/events-${id}?title=Events`, {
+    const res = await fetch(`https://ntfy.sh/events-${id}?title=Events`, {
       method: 'PUT',
       body: title
     })
+    console.log('[INFO]', res.status, res.statusText)
   }
 
   return {
