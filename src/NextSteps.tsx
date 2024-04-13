@@ -11,6 +11,7 @@ import { queryClient } from './queryClient'
 import GenericModal from './GenericModal'
 import { isDateInTheFuture } from './utils/date'
 import { useParams } from '@tanstack/react-router'
+import { enqueue } from './utils/queue'
 
 
 export default function NextSteps() {
@@ -68,7 +69,7 @@ export default function NextSteps() {
             </Flex>
           </Checkbox>
           <Flex justifyContent="center">
-            <ReminderModal nsId={ns.id} remindAt={ns.remindAt} />
+            <ReminderModal nsId={ns.id} title={ns.title} author={ns.authorId} remindAt={ns.remindAt} />
           </Flex>
         </Flex>
       ))}
@@ -77,7 +78,7 @@ export default function NextSteps() {
   </>
 }
 
-function ReminderModal(props: { nsId: string, remindAt?: string }) {
+function ReminderModal(props: { nsId: string, remindAt?: string, title: string, author: string }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { mutate, isPending } = useMutation({
     mutationFn: (remindAt: string) => updateReminder(props.nsId, remindAt),
@@ -87,7 +88,15 @@ function ReminderModal(props: { nsId: string, remindAt?: string }) {
   const onAdd = (data: string) => {
     const dateWithTZ = DateTime.fromSQL((data + ':00').replace('T', ' '))
     const dateUTC = dateWithTZ.toUTC().toSQL()?.replace('.000 Z', '')
+
     if (!dateUTC) return
+
+    enqueue({
+      nextId: props.nsId,
+      userId: props.author,
+      title: props.title,
+      remindAt: dateUTC + '.000Z',
+    })
     mutate(dateUTC)
   }
 
