@@ -1,5 +1,6 @@
 import z from 'zod'
-const url = "https://quirrel-production-7d41.up.railway.app"
+const queueUrl = 'https://quirrel.jorgeadolfo.com'
+const lambdaUrl = 'https://events.jorgeadolfo.com/.netlify/functions/api'
 
 interface Params {
   nextId: string
@@ -15,7 +16,7 @@ const payload = (params: Params) => ({
   "id": params.nextId
 })
 
-const basic = "aWdub3JlZDpNYWN3aW4xNCE="
+const basic = 'aWdub3JlZDpDYUJ2WEFQMzE1d0t2S21jZkV3eUtzMzBoclFIc0VmUg=='
 
 const schema = z.object({
   id: z.string(),
@@ -39,9 +40,8 @@ export async function enqueue(params: Params) {
     body: JSON.stringify(payload(params)),
   }
 
-  const quirrel = encodeURIComponent("https://events.jorgeadolfo.com/.netlify/functions/api")
-  
-  const res = await fetch(`${url}/queues/${quirrel}`, opts)
+  const quirrel = encodeURIComponent(lambdaUrl)
+  const res = await fetch(`${queueUrl}/queues/${quirrel}`, opts)
 
   if (res.status > 299) {
     throw new Error(`${res.status}: ${res.statusText}`)
