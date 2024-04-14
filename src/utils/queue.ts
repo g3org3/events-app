@@ -1,5 +1,5 @@
 import z from 'zod'
-const url = "https://quirrel-production-02d9.up.railway.app"
+const url = "https://quirrel-production-7d41.up.railway.app/"
 
 interface Params {
   nextId: string
