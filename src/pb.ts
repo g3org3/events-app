@@ -1,7 +1,15 @@
 import PocketBase from 'pocketbase'
-import { Collections, CommentsRecord, CommentsResponse, EventsRecord, EventsResponse, NextstepsRecord, NextstepsResponse } from './pocket-types';
+import {
+  Collections,
+  CommentsRecord,
+  CommentsResponse,
+  EventsRecord,
+  EventsResponse,
+  NextstepsRecord,
+  NextstepsResponse,
+} from './pocketbase-types';
 
-export const pb = new PocketBase('https://pb.jorgeadolfo.com')
+export const pb = new PocketBase('https://pb3.jorgeadolfo.com')
 pb.autoCancellation(false);
 
 export const createEvent = async (ev: EventsRecord) => {
@@ -14,7 +22,7 @@ export const createEvent = async (ev: EventsRecord) => {
 
 export const createComment = async (comment: CommentsRecord) => {
   if (!pb.authStore.model) return
-  
+
   const res = await pb.collection(Collections.Comments)
     .create<CommentsRecord>({ ...comment, authorId: pb.authStore.model.id })
 
@@ -30,7 +38,7 @@ export const createNextStep = async (ns: NextstepsRecord, type: 'nextstep' | 'do
 }
 
 export const updateNextStep = async (id: string, checked: boolean) => {
-  let doneAt = checked ? new Date() : ''
+  const doneAt = checked ? new Date() : ''
   if (!pb.authStore.model) return
   const res = await pb.collection(Collections.Nextsteps)
     .update<NextstepsResponse>(id, { doneAt })
@@ -129,7 +137,7 @@ export const getNextSteps = async (eventId: string, type: 'doubt' | 'nextstep') 
 
 export const getComments = async (eventId: string) => {
   if (!pb.authStore.model) return []
-  
+
   const filter = `authorId='${pb.authStore.model.id}' && eventId='${eventId}'`
 
   const comments = await pb.collection(Collections.Comments)

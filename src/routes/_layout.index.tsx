@@ -8,7 +8,7 @@ import CreateEventModal from '../CreateEventModal'
 import Empty from '../Empty'
 import EventComponent from '../EventComponent'
 import LoadingEvent from '../LoadingEvent';
-import { EventsResponse } from '../pocket-types'
+import { EventsResponse } from '../pocketbase-types'
 import { getEvents, pb } from '../pb'
 import { isDateInTheFuture } from '../utils/date'
 import { queryClient } from '../queryClient'
@@ -45,7 +45,7 @@ export default function EventList() {
     queryKey: ['events', query],
     queryFn: () => getEvents(query),
   })
-  
+
   let filteredEvents = events
   if (filter === 'pending') {
     filteredEvents = events.filter(e => e.pending.length > 0)
@@ -55,7 +55,7 @@ export default function EventList() {
   }
 
   useEffect(() => {
-    pb.collection('events').subscribe('*', function(e) {
+    pb.collection('events').subscribe('*', function (e) {
       console.log(e)
       const event = e.record as EventsResponse
       if (event.authorId === pb.authStore.model?.id && event.sharedWith.includes(pb.authStore.model?.id)) {
@@ -63,7 +63,7 @@ export default function EventList() {
       }
     })
 
-    pb.collection('nextsteps').subscribe('*', function(e) {
+    pb.collection('nextsteps').subscribe('*', function (e) {
       console.log(e)
       // const nextstep = e.record as NextstepsResponse
       queryClient.invalidateQueries({ queryKey: ['events'] })
