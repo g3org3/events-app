@@ -1,12 +1,12 @@
+import { useEffect } from 'react'
 import { Flex, useColorModeValue, useDisclosure } from '@chakra-ui/react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useParams } from '@tanstack/react-router'
+import { DateTime } from 'luxon'
 
 import GenericModal from './GenericModal'
 import { createComment, getComments, pb } from './pb'
 import { queryClient } from './queryClient'
-import { DateTime } from 'luxon'
-import { useParams } from '@tanstack/react-router'
 
 
 export default function Comments() {
@@ -18,7 +18,7 @@ export default function Comments() {
   const bg = useColorModeValue('white', 'black')
 
   useEffect(() => {
-    pb.collection('comments').subscribe('*', function(e) {
+    pb.collection('comments').subscribe('*', function (e) {
       console.log(e)
       if (e.record.eventId === selectedEventId)
         queryClient.invalidateQueries({ queryKey: [] })
